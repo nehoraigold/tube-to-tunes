@@ -1,0 +1,12 @@
+{
+  "outputDirectory": "/Users/origold/Desktop",
+  "maxParallelDownloads": 3,
+  "google": {
+    "googleSheetsScopes": ["https://www.googleapis.com/auth/spreadsheets"],
+    "googleSheetId": "1cgOpOXXwwNHFwXStWqRAAbTTTjd3hulp85jne8g24sc"
+  },
+  "auth": {
+    "tokenPath": "token.json",
+    "credentialsPath": "credentials.json"
+  }
+}

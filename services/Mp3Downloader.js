@@ -1,20 +1,13 @@
 //region imports
-const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
+const { path: ffmpegPath } = require('@ffmpeg-installer/ffmpeg');
 const YoutubeToMp3 = require('youtube-mp3-downloader');
 const cliProgress = require('cli-progress');
-const configs = require('../configs');
-
+const { stringToMap, getQueryParamsString } = require('../utils/utils');
 //endregion
 
 class Mp3Downloader {
-    constructor() {
-        this.download = this.download.bind(this);
-        this.progress = this.progress.bind(this);
-        this.finish = this.finish.bind(this);
-        this.complete = this.complete.bind(this);
-        this.setCompletionCallback = this.setCompletionCallback.bind(this);
-        this.initializeDownloader = this.initializeDownloader.bind(this);
-        this.completionCallback = null;
+    constructor(config) {
+        this.config = config;
         this.currentDownloadBars = {};
         this.bar = new cliProgress.MultiBar({
             clearOnComplete: false,
@@ -23,24 +16,25 @@ class Mp3Downloader {
         }, cliProgress.Presets.shades_grey);
         this.totalDownloads = 0;
         this.finishCount = 0;
-        this.initializeDownloader();
     }
 
-    initializeDownloader() {
+    Initialize = () => {
         this.YD = new YoutubeToMp3({
             ffmpegPath,
-            outputPath: configs.outputDirectory,
+            outputPath: this.config.outputDirectory,
             youtubeVideoQuality: "highestaudio",
-            queueParallelism: configs.maxParallelDownloads,
+            queueParallelism: this.config.maxParallelDownloads,
             progressTimeout: 1000
         });
 
-        this.YD.on("error", err => {console.log(`Received error - ${err}\nExiting...`); process.exit(1)});
+        this.YD.on("error", err => {
+            console.log(`Received error - ${err}\nExiting...`); process.exit(1)
+        });
         this.YD.on("finished", this.finish);
         this.YD.on("progress", this.progress);
     }
 
-    download(song) {
+    Download = (song) => {
         const filename = `${song.name} - ${song.artist}.mp3`;
         const videoId = this.getVideoId(song.url);
         this.currentDownloadBars[videoId] = this.bar.create(100, 0, { filename });
@@ -48,40 +42,33 @@ class Mp3Downloader {
         this.YD.download(videoId, filename);
     }
 
-    getVideoId(url) {
-        const KEY_INDEX = 0;
-        const VAL_INDEX = 1;
-        const VIDEO_ID_KEY = "v";
-        const args = url.split("?")[1].split("&");
-        let argsMap = {};
-        args.forEach(pair => {
-            const keyval = pair.split("=");
-            argsMap[keyval[KEY_INDEX]] = keyval[VAL_INDEX];
-        });
-        return argsMap[VIDEO_ID_KEY];
+    SetCompletionCallback = (completionCallback) => {
+        this.completionCallback = completionCallback;
     }
 
-    progress(event) {
+    getVideoId = (url) => {
+        const VIDEO_ID_KEY = "v";
+        const queryParams = getQueryParamsString(url);
+        const params = stringToMap(queryParams, "&", "=");
+        return params[VIDEO_ID_KEY];
+    }
+
+    progress = (event) => {
         this.currentDownloadBars[event.videoId].update(event.progress.percentage);
     }
 
-    finish() {
+    finish = async () => {
         this.finishCount++;
         if (this.finishCount === this.totalDownloads) {
-            this.complete();
+            await this.complete();
         }
     }
 
-    complete() {
+    complete = async () => {
         this.bar.stop();
-        if (this.completionCallback !== null) {
-            this.completionCallback();
+        if (this.completionCallback) {
+            await this.completionCallback();
         }
-        console.log("\nDownloads completed!");
-    }
-
-    setCompletionCallback(callback) {
-        this.completionCallback = callback;
     }
 }
 

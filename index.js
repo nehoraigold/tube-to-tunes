@@ -2,22 +2,31 @@
 const Mp3Downloader = require('./services/Mp3Downloader');
 const Authorizer = require("./services/Authorizer");
 const SpreadsheetCommunicator = require('./services/SpreadsheetCommunicator');
+const config = require("./config.json");
 //endregion
 
-function main() {
-    const downloader = new Mp3Downloader();
-    const authorizer = new Authorizer();
-    const spreadsheetCommunicator = new SpreadsheetCommunicator(authorizer);
+async function main() {
+    establishShutdownProcedure();
+    const authorizer = new Authorizer(config);
+    const spreadsheetCommunicator = new SpreadsheetCommunicator(config, authorizer);
+    const downloader = new Mp3Downloader(config);
 
-    downloader.setCompletionCallback(spreadsheetCommunicator.markAllAsProcessed);
+    try {
+        await authorizer.Authorize();
+        await spreadsheetCommunicator.LoadSongs();
+        downloader.Initialize();
+        downloader.SetCompletionCallback(spreadsheetCommunicator.MarkAllAsProcessed);
+    } catch (e) {
+        console.error(e);
+        process.exit(1);
+    }
 
-    const intervalId = setInterval(() => {
-        if (spreadsheetCommunicator.isReady) {
-            spreadsheetCommunicator.songs.forEach(song => downloader.download(song));
-            clearInterval(intervalId);
-        }
-    });
+    for (const song of spreadsheetCommunicator.songs) {
+        downloader.Download(song)
+    }
+}
 
+function establishShutdownProcedure() {
     const shutdown = () => {
         console.log("\nProgram has terminated.");
         process.exit(1);
