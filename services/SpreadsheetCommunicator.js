@@ -1,7 +1,6 @@
 //region imports
 const { google } = require('googleapis');
 const Song = require('../model/Song');
-
 //endregion
 
 class SpreadsheetCommunicator {
@@ -20,15 +19,11 @@ class SpreadsheetCommunicator {
         const DATA_RANGE = "A:E";
 
         const sheets = google.sheets({ version: 'v4', auth: this.authorizer.auth });
-        let res;
-        try {
-            res = await sheets.spreadsheets.values.get({
-                spreadsheetId: this.sheetId,
-                range: DATA_RANGE,
-            });
-        } catch (err) {
-            return console.log("Error loading songs from spreadsheet:", err);
-        }
+        const res = await sheets.spreadsheets.values.get({
+            spreadsheetId: this.sheetId,
+            range: DATA_RANGE,
+        });
+
         const rows = res.data.values;
         const UNPROCESSED_SONG_ROW_LENGTH = 3;
         rows.forEach((row, i) => {
@@ -41,10 +36,6 @@ class SpreadsheetCommunicator {
             this.range[1] = i;
             this.songs.push(new Song(row[TITLE_INDEX], row[ARTIST_INDEX], row[URL_INDEX]))
         });
-        const comment = this.songs.length === 0 ? 
-            "No songs to download!" :
-            `Ready to download ${this.songs.length} song${this.songs.length === 1 ? "" : "s"} to ${this.outputDirectory}...\n`;
-        console.log(comment);
     }
 
     MarkAllAsProcessed = async () => {
@@ -57,16 +48,12 @@ class SpreadsheetCommunicator {
             data: [{ range, majorDimension: "COLUMNS", values: [ values ] }],
             valueInputOption: "RAW"
         };
-        try {
-            const { data: { totalUpdatedCells } } = await sheets.spreadsheets.values.batchUpdate({
-                auth: this.authorizer.auth,
-                spreadsheetId: this.sheetId,
-                requestBody: request
-            });
-            console.log(`\nMarked ${totalUpdatedCells} songs as processed.`);
-        } catch (err) {
-            console.error("Error", err);
-        }
+
+        await sheets.spreadsheets.values.batchUpdate({
+            auth: this.authorizer.auth,
+            spreadsheetId: this.sheetId,
+            requestBody: request
+        });
     }
 
 }

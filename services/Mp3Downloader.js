@@ -2,6 +2,7 @@
 const { path: ffmpegPath } = require('@ffmpeg-installer/ffmpeg');
 const YoutubeToMp3 = require('youtube-mp3-downloader');
 const cliProgress = require('cli-progress');
+const logger = require("../utils/logging");
 const { stringToMap, getQueryParamsString } = require('../utils/utils');
 //endregion
 
@@ -22,13 +23,13 @@ class Mp3Downloader {
         this.YD = new YoutubeToMp3({
             ffmpegPath,
             outputPath: this.config.outputDirectory,
-            youtubeVideoQuality: "highestaudio",
+            youtubeVideoQuality: "lowestaudio",
             queueParallelism: this.config.maxParallelDownloads,
             progressTimeout: 1000
         });
 
         this.YD.on("error", err => {
-            console.log(`Received error - ${err}\nExiting...`); process.exit(1)
+            logger.err(err);
         });
         this.YD.on("finished", this.finish);
         this.YD.on("progress", this.progress);

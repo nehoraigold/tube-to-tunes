@@ -2,6 +2,7 @@
 const fs = require('fs');
 const { question } = require('readline-sync');
 const { google } = require('googleapis');
+const logger = require("../utils/logging");
 //endregion
 
 class Authorizer {
@@ -30,28 +31,28 @@ class Authorizer {
 
     getNewToken = async (oAuth2Client) => {
         const authUrl = oAuth2Client.generateAuthUrl({
-            access_type: 'offline',
+            access_type: 'online',
             scope: this.scopes,
         });
-        
-        console.log('Authorize this app by visiting this url:', authUrl);
-        const code = question('Enter the code from that page here: ');
+        logger.log(`Authorize this app by visiting this url: ${authUrl}`);
+        logger.log("Enter the code from that page here:");
+        const code = question('');
         
         let token;
         try {
             token = await oAuth2Client.getToken(code);
         } catch (err) {
-            return console.error('Error while trying to retrieve access token:', err);
+            return logger.err(`Error while trying to retrieve access token: ${err}`);
         }
 
         oAuth2Client.setCredentials(token);
         try {
             fs.writeFileSync(this.tokenPath, JSON.stringify(token));
         } catch (err) {
-            return console.error(err);
+            return logger.err(err);
         }
 
-        console.log('Authorization token stored to', this.tokenPath);
+        logger.log(`Authorization token stored to ${this.tokenPath}`);
         this.auth = oAuth2Client;
     }
 }
