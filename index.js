@@ -1,5 +1,7 @@
 //region imports
 const ora = require("ora");
+const chalk = require("chalk");
+const { textSync } = require("figlet");
 const Mp3Downloader = require('./services/Mp3Downloader');
 const Authorizer = require("./services/Authorizer");
 const SpreadsheetCommunicator = require('./services/SpreadsheetCommunicator');
@@ -8,7 +10,7 @@ const config = require("./config.json");
 //endregion
 
 async function main() {
-    
+    console.log(chalk.green(textSync("Tube 2 Tunes")));
     establishShutdownProcedure();
     const authorizer = new Authorizer(config);
     const spreadsheetCommunicator = new SpreadsheetCommunicator(config, authorizer);
@@ -16,50 +18,54 @@ async function main() {
 
     let spinner = null;
     try {
-        spinner = ora("Authorizing...").start();
+        spinner = ora("Checking authorization... 🔐").start();
         await authorizer.Authorize();
-        spinner.succeed("Authorized!");
+        spinner.succeed("Authorized! 🔓");
     } catch (e) {
-        spinner.fail("Authorization failed!");
+        spinner.fail("Authorization failed! 🔒");
         return logger.err(e);
     }
 
     let songs = [];
     try {
-        spinner = ora("Loading songs...").start();
+        spinner = ora("Loading songs... 🎹").start();
         songs = await spreadsheetCommunicator.LoadSongs();
     } catch (e) {
-        spinner.fail("Failed to load songs!");
+        spinner.fail("Failed to load songs! 🎻");
         return logger.err(e);
     }
 
     if (songs.length === 0) {
-        spinner.succeed("No songs need downloading!");
-        spinner.succeed("Program complete!");
+        spinner.succeed("No songs need downloading! ✅");
         return;
     } else {
-        spinner.succeed(`Successfully loaded ${songs.length} song${songs.length === 1 ? "" : "s"}!`)
+        spinner.succeed(`Successfully loaded ${songs.length} song${songs.length === 1 ? "" : "s"}! 🎸`)
     }
 
     downloader.Initialize();
     downloader.SetCompletionCallback(async () => {
         try {
             await spreadsheetCommunicator.MarkAllAsProcessed(songs);
-            spinner.succeed("Download complete!");
+            spinner.succeed("Download complete! ✅");
         } catch (e) {
-            spinner.fail("Failed to mark songs as processed!");
+            spinner.fail("Failed to mark songs as processed! 😞");
             logger.err(e);
         }
     });
 
-    spinner = ora("Starting download...").succeed();
+    spinner = ora("Starting download... ⬇️").succeed();
     songs.forEach(song => downloader.Download(song));
 }
 
 function establishShutdownProcedure() {
     const shutdown = () => {
-        spinner.stopAndPersist();
-        spinner.fail("Program has terminated.");
+        const message = "Program has terminated. 😳";
+        if (spinner) {
+            spinner.stopAndPersist();
+            spinner.fail(message);
+        } else {
+            logger.err(message);
+        }
         process.exit(1);
     };
 

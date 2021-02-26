@@ -31,7 +31,10 @@ class Mp3Downloader {
             progressTimeout: 1000
         });
 
-        this.YD.on("error", logger.err);
+        this.YD.on("error", (error) => {
+            logger.err(new Error(error));
+            process.exit(1);
+        });
         this.YD.on("finished", this.finish);
         this.YD.on("progress", this.progress);
     }
