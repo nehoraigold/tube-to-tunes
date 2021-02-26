@@ -6,44 +6,37 @@ const Song = require('../model/Song');
 class SpreadsheetCommunicator {
     constructor(config, authorizer) {
         this.authorizer = authorizer;
-        this.sheetId = config.google.googleSheetId;
-        this.outputDirectory = config.outputDirectory;
-        this.songs = [];
-        this.range = [null, null];
+        this.sheetId = config.google.sheetId;
+        this.outputDirectory = config.download.outputDirectory;
+        this.range = {
+            lowBound: null,
+            highBound: null
+        };
     }
 
     LoadSongs = async () => {
         const TITLE_INDEX = 0;
         const ARTIST_INDEX = 1;
         const URL_INDEX = 2;
-        const DATA_RANGE = "A:E";
-
-        const sheets = google.sheets({ version: 'v4', auth: this.authorizer.auth });
-        const res = await sheets.spreadsheets.values.get({
-            spreadsheetId: this.sheetId,
-            range: DATA_RANGE,
-        });
-
-        const rows = res.data.values;
         const UNPROCESSED_SONG_ROW_LENGTH = 3;
-        rows.forEach((row, i) => {
-            if (row.length !== UNPROCESSED_SONG_ROW_LENGTH) {
-                return;
+        const sheet = await this.loadSpreadsheet();
+        const relevantRows = sheet.filter((row, i) => {
+            if (row.length === UNPROCESSED_SONG_ROW_LENGTH) {
+                this.updateRange(i);
+                return true;
             }
-            if (this.range[0] === null) {
-                this.range[0] = i;
-            }
-            this.range[1] = i;
-            this.songs.push(new Song(row[TITLE_INDEX], row[ARTIST_INDEX], row[URL_INDEX]))
+            return false;
         });
+
+        return relevantRows.map((row) => new Song(row[TITLE_INDEX], row[ARTIST_INDEX], row[URL_INDEX]));
     }
 
-    MarkAllAsProcessed = async () => {
+    MarkAllAsProcessed = async (songs) => {
         const DATE_PROCESSED_COLUMN = "D";
-        const range = `${DATE_PROCESSED_COLUMN}${this.range[0] + 1}:${DATE_PROCESSED_COLUMN}${this.range[1] + 1}`;
+        const range = `${DATE_PROCESSED_COLUMN}${this.range.lowBound + 1}:${DATE_PROCESSED_COLUMN}${this.range.highBound + 1}`;
         const sheets = google.sheets({ version: 'v4', auth: this.authorizer.auth });
         const dateProcessed = new Date();
-        const values = Array(this.songs.length).fill(dateProcessed);
+        const values = Array(songs.length).fill(dateProcessed);
         const request = {
             data: [{ range, majorDimension: "COLUMNS", values: [ values ] }],
             valueInputOption: "RAW"
@@ -56,6 +49,25 @@ class SpreadsheetCommunicator {
         });
     }
 
+    loadSpreadsheet = async () => {
+        const range = "A:E";
+        const sheets = google.sheets({ version: 'v4', auth: this.authorizer.auth });
+        const { data: { values } } = await sheets.spreadsheets.values.get({
+            spreadsheetId: this.sheetId,
+            range,
+        });
+        return values;
+    }
+
+    updateRange = (index) => {
+        if (this.range.lowBound === null || this.range.lowBound > index) {
+            this.range.lowBound = index;
+        }
+
+        if (this.range.highbBound === null || this.range.highBound < index) {
+            this.range.highBound = index;
+        }
+    }
 }
 
 module.exports = SpreadsheetCommunicator;

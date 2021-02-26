@@ -9,7 +9,7 @@ class Authorizer {
     constructor(config) {
         this.tokenPath = config.auth.tokenPath;
         this.credentialsPath = config.auth.credentialsPath;
-        this.scopes = config.google.googleSheetsScopes;
+        this.scopes = config.google.scopes;
         this.auth = null;
     }
 

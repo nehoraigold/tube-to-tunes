@@ -6,6 +6,8 @@ const logger = require("../utils/logging");
 const { stringToMap, getQueryParamsString } = require('../utils/utils');
 //endregion
 
+
+
 class Mp3Downloader {
     constructor(config) {
         this.config = config;
@@ -17,20 +19,19 @@ class Mp3Downloader {
         }, cliProgress.Presets.shades_grey);
         this.totalDownloads = 0;
         this.finishCount = 0;
+        this.completionCallback = null;
     }
 
     Initialize = () => {
         this.YD = new YoutubeToMp3({
             ffmpegPath,
-            outputPath: this.config.outputDirectory,
-            youtubeVideoQuality: "lowestaudio",
+            outputPath: this.config.download.outputDirectory,
+            youtubeVideoQuality: this.config.download.soundQuality,
             queueParallelism: this.config.maxParallelDownloads,
             progressTimeout: 1000
         });
 
-        this.YD.on("error", err => {
-            logger.err(err);
-        });
+        this.YD.on("error", logger.err);
         this.YD.on("finished", this.finish);
         this.YD.on("progress", this.progress);
     }

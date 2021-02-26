@@ -7,14 +7,14 @@ const logger = require('./utils/logging');
 const config = require("./config.json");
 //endregion
 
-global.spinner = undefined;
-
 async function main() {
+    
     establishShutdownProcedure();
     const authorizer = new Authorizer(config);
     const spreadsheetCommunicator = new SpreadsheetCommunicator(config, authorizer);
     const downloader = new Mp3Downloader(config);
 
+    let spinner = null;
     try {
         spinner = ora("Authorizing...").start();
         await authorizer.Authorize();
@@ -24,29 +24,27 @@ async function main() {
         return logger.err(e);
     }
 
+    let songs = [];
     try {
         spinner = ora("Loading songs...").start();
-        await spreadsheetCommunicator.LoadSongs();
+        songs = await spreadsheetCommunicator.LoadSongs();
     } catch (e) {
         spinner.fail("Failed to load songs!");
         return logger.err(e);
     }
 
-    const songCount = spreadsheetCommunicator.songs.length;
-
-    if (songCount === 0) {
+    if (songs.length === 0) {
         spinner.succeed("No songs need downloading!");
         spinner.succeed("Program complete!");
         return;
     } else {
-        spinner.succeed(`Successfully loaded ${songCount} song${songCount === 1 ? "" : "s"}!`)
+        spinner.succeed(`Successfully loaded ${songs.length} song${songs.length === 1 ? "" : "s"}!`)
     }
 
-    spinner = ora("Starting download...").succeed();
     downloader.Initialize();
     downloader.SetCompletionCallback(async () => {
         try {
-            await spreadsheetCommunicator.MarkAllAsProcessed();
+            await spreadsheetCommunicator.MarkAllAsProcessed(songs);
             spinner.succeed("Download complete!");
         } catch (e) {
             spinner.fail("Failed to mark songs as processed!");
@@ -54,9 +52,8 @@ async function main() {
         }
     });
 
-    for (const song of spreadsheetCommunicator.songs) {
-        downloader.Download(song)
-    }
+    spinner = ora("Starting download...").succeed();
+    songs.forEach(song => downloader.Download(song));
 }
 
 function establishShutdownProcedure() {
