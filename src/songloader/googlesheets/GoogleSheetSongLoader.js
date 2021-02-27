@@ -11,6 +11,7 @@ class GoogleSheetSongLoader extends ISongLoader {
         this.sheetId = config.sheetId;
         this.authorizer = new GoogleSheetAuthorizer(config.auth);
         this.range = { lowBound: null, highBound: null };
+        this.songs = [];
     }
 
     Initialize = async () => {
@@ -29,15 +30,27 @@ class GoogleSheetSongLoader extends ISongLoader {
         const URL_INDEX = 2;
         const UNPROCESSED_SONG_ROW_LENGTH = 3;
 
-        const sheet = await this.loadSpreadsheet();
-        const relevantRows = sheet.filter((row, i) => {
-            if (row.length === UNPROCESSED_SONG_ROW_LENGTH) {
-                this.updateRange(i);
-                return true;
-            }
+        let sheet = null;
+        try {
+            sheet = await this.loadSpreadsheet()
+        } catch (err) {
+            logger.err(err);
             return false;
+        }
+
+        const relevantRows = sheet.filter((row, i) => {
+            const isRelevantRow = row.length === UNPROCESSED_SONG_ROW_LENGTH;
+            if (isRelevantRow) {
+                this.updateRange(i);
+            }
+            return isRelevantRow;
         });
-        return relevantRows.map((row) => new Song(row[TITLE_INDEX], row[ARTIST_INDEX], row[URL_INDEX]));
+        this.songs = relevantRows.map((row) => new Song(row[TITLE_INDEX], row[ARTIST_INDEX], row[URL_INDEX]));
+        return true;
+    };
+
+    GetSongs = () => {
+        return this.songs;
     };
 
     MarkAllAsProcessed = async (songs) => {
@@ -72,7 +85,6 @@ class GoogleSheetSongLoader extends ISongLoader {
         if (this.range.lowBound === null || this.range.lowBound > index) {
             this.range.lowBound = index;
         }
-
         if (this.range.highBound === null || this.range.highBound < index) {
             this.range.highBound = index;
         }

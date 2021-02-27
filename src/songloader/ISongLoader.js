@@ -2,7 +2,8 @@
 
 class ISongLoader {
      Initialize = async () => { return false; };
-     LoadSongs = async () => { };
+     LoadSongs = async () => { return false; };
+     GetSongs = () => { return []; };
      MarkAllAsProcessed = async () => { };
 }
 

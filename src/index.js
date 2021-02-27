@@ -30,17 +30,14 @@ async function main() {
     }
     spinner.succeed("Initialized successfully! 😄");
 
-    // Load songs
+    // Retrieve songs
     spinner = ora("Loading songs... 🥁").start();
-    let songs = [];
-    try {
-        songs = await songLoader.LoadSongs();
-    } catch (e) {
+    if (!(await songLoader.LoadSongs())) {
         spinner.fail("Failed to load songs! 🎻");
-        logger.err(e);
         return;
     }
 
+    const songs = songLoader.GetSongs();
     if (songs.length === 0) {
         spinner.succeed("No songs need downloading! 🎹");
         return;
