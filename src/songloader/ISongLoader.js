@@ -1,5 +1,3 @@
-
-
 class ISongLoader {
      Initialize = async () => { return false; };
      LoadSongs = async () => { return false; };
