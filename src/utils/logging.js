@@ -3,11 +3,11 @@ const chalk = require("chalk");
 //endregion
 
 const log = (...message) => {
-    console.log(chalk.blueBright("\n\t", ...message));
-}
+    console.log("\n" + chalk.blue(...message));
+};
 
 const err = (...message) => {
-    console.log(chalk.red("\n\t", ...message));
-}
+    console.log("\n" + chalk.red(...message));
+};
 
 module.exports = { log, err };
