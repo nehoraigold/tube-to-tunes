@@ -1,0 +1,6 @@
+{
+  "userId": "1256089137",
+  "playlistName": "To Download",
+  "credentialsPath": "credentials/spotify.credentials",
+  "scopes": [ "playlist-read-private" ]
+}

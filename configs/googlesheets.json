@@ -1,8 +1,8 @@
 {
   "sheetId": "1cgOpOXXwwNHFwXStWqRAAbTTTjd3hulp85jne8g24sc",
   "auth": {
-    "tokenPath": "credentials/token.json",
-    "credentialsPath": "credentials/credentials.json",
+    "tokenPath": "credentials/google.token",
+    "credentialsPath": "credentials/google.credentials",
     "scopes": [
       "https://www.googleapis.com/auth/spreadsheets"
     ]

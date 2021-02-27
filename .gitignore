@@ -3,5 +3,5 @@
 .vs/
 node_modules/
 package-lock.json
-**/token.json
-**/credentials.json
+**/*.credentials
+**/*.token
