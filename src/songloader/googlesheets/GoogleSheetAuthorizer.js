@@ -2,19 +2,19 @@
 const fs = require('fs');
 const { question } = require('readline-sync');
 const { google } = require('googleapis');
-const logger = require("../utils/logging");
+const logger = require("../../utils/logging");
 //endregion
 
-class Authorizer {
+class GoogleSheetAuthorizer {
     constructor(config) {
-        this.tokenPath = config.auth.tokenPath;
-        this.credentialsPath = config.auth.credentialsPath;
-        this.scopes = config.google.scopes;
+        this.tokenPath = config.tokenPath;
+        this.credentialsPath = config.credentialsPath;
+        this.scopes = config.scopes;
         this.auth = null;
     }
 
     Authorize = async () => {
-        const credentials = JSON.parse(fs.readFileSync(this.credentialsPath));
+        const credentials = JSON.parse(fs.readFileSync(this.credentialsPath).toString());
         const { client_id, client_secret, redirect_uris } = credentials.installed;
         const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
 
@@ -27,7 +27,7 @@ class Authorizer {
 
         oAuth2Client.setCredentials(JSON.parse(token));
         this.auth = oAuth2Client;
-    }
+    };
 
     getNewToken = async (oAuth2Client) => {
         const authUrl = oAuth2Client.generateAuthUrl({
@@ -54,7 +54,7 @@ class Authorizer {
 
         logger.log(`Authorization token stored to ${this.tokenPath}`);
         this.auth = oAuth2Client;
-    }
+    };
 }
 
-module.exports = Authorizer;
+module.exports = GoogleSheetAuthorizer;

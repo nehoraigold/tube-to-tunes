@@ -2,51 +2,57 @@
 const ora = require("ora");
 const chalk = require("chalk");
 const { textSync } = require("figlet");
-const Mp3Downloader = require('./services/Mp3Downloader');
-const Authorizer = require("./services/Authorizer");
-const SpreadsheetCommunicator = require('./services/SpreadsheetCommunicator');
 const logger = require('./utils/logging');
-const config = require("./config.json");
+const DownloaderFactory = require("./downloader/DownloaderFactory");
+const SongLoaderFactory = require('./songloader/SongLoaderFactory');
+const config = require("../config.json");
 //endregion
+
+global.spinner = null;
+global.logger = logger;
 
 async function main() {
     console.log(chalk.green(textSync("Tube 2 Tunes")));
+
+    // Initialize app
+    spinner = ora("Initializing... 🤔").start();
     establishShutdownProcedure();
-    const authorizer = new Authorizer(config);
-    const spreadsheetCommunicator = new SpreadsheetCommunicator(config, authorizer);
-    const downloader = new Mp3Downloader(config);
+    const songLoader = SongLoaderFactory.Create(config);
+    const downloader = DownloaderFactory.Create(config);
 
-    let spinner = null;
-    try {
-        spinner = ora("Checking authorization... 🔐").start();
-        await authorizer.Authorize();
-        spinner.succeed("Authorized! 🔓");
-    } catch (e) {
-        spinner.fail("Authorization failed! 🔒");
-        return logger.err(e);
+    if (!(await songLoader.Initialize())) {
+        spinner.fail("Failed to initialize song loader! 😞");
+        return;
     }
+    if (!(await downloader.Initialize())) {
+        spinner.fail("Failed to initialize downloader! 😞");
+        return;
+    }
+    spinner.succeed("Initialized successfully! 😄");
 
+    // Load songs
+    spinner = ora("Loading songs... 🥁").start();
     let songs = [];
     try {
-        spinner = ora("Loading songs... 🎹").start();
-        songs = await spreadsheetCommunicator.LoadSongs();
+        songs = await songLoader.LoadSongs();
     } catch (e) {
         spinner.fail("Failed to load songs! 🎻");
-        return logger.err(e);
+        logger.err(e);
+        return;
     }
 
     if (songs.length === 0) {
-        spinner.succeed("No songs need downloading! ✅");
+        spinner.succeed("No songs need downloading! 🎹");
         return;
-    } else {
-        spinner.succeed(`Successfully loaded ${songs.length} song${songs.length === 1 ? "" : "s"}! 🎸`)
     }
 
-    downloader.Initialize();
+    spinner.succeed(`Successfully loaded ${songs.length} song${songs.length === 1 ? "" : "s"}! 🎹`);
+
+    // Download songs
     downloader.SetCompletionCallback(async () => {
         try {
-            await spreadsheetCommunicator.MarkAllAsProcessed(songs);
-            spinner.succeed("Download complete! ✅");
+            await songLoader.MarkAllAsProcessed(songs);
+            spinner.succeed("Download complete! 🎉🎉");
         } catch (e) {
             spinner.fail("Failed to mark songs as processed! 😞");
             logger.err(e);

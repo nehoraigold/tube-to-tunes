@@ -1,15 +1,5 @@
 {
-  "download": {
-    "outputDirectory": "/Users/origold/Desktop",
-    "maxParallelDownloads": 3,
-    "soundQuality": "highestaudio"
-  },
-  "google": {
-    "scopes": ["https://www.googleapis.com/auth/spreadsheets"],
-    "sheetId": "1cgOpOXXwwNHFwXStWqRAAbTTTjd3hulp85jne8g24sc"
-  },
-  "auth": {
-    "tokenPath": "token.json",
-    "credentialsPath": "credentials.json"
-  }
+  "outputDirectory": "/Users/origold/Desktop",
+  "songLoader": "googlesheets",
+  "downloader": "yt2mp3"
 }

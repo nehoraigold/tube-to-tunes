@@ -2,14 +2,13 @@
 const { path: ffmpegPath } = require('@ffmpeg-installer/ffmpeg');
 const YoutubeToMp3 = require('youtube-mp3-downloader');
 const cliProgress = require('cli-progress');
-const logger = require("../utils/logging");
+const IDownloader = require('./IDownloader');
 const { stringToMap, getQueryParamsString } = require('../utils/utils');
 //endregion
 
-
-
-class Mp3Downloader {
+class Yt2Mp3Downloader extends IDownloader {
     constructor(config) {
+        super();
         this.config = config;
         this.currentDownloadBars = {};
         this.bar = new cliProgress.MultiBar({
@@ -25,8 +24,8 @@ class Mp3Downloader {
     Initialize = () => {
         this.YD = new YoutubeToMp3({
             ffmpegPath,
-            outputPath: this.config.download.outputDirectory,
-            youtubeVideoQuality: this.config.download.soundQuality,
+            outputPath: this.config.outputDirectory,
+            youtubeVideoQuality: this.config.soundQuality,
             queueParallelism: this.config.maxParallelDownloads,
             progressTimeout: 1000
         });
@@ -37,7 +36,8 @@ class Mp3Downloader {
         });
         this.YD.on("finished", this.finish);
         this.YD.on("progress", this.progress);
-    }
+        return true;
+    };
 
     Download = (song) => {
         const filename = `${song.name} - ${song.artist}.mp3`;
@@ -77,4 +77,4 @@ class Mp3Downloader {
     }
 }
 
-module.exports = Mp3Downloader;
+module.exports = Yt2Mp3Downloader;
