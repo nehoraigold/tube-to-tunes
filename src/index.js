@@ -4,7 +4,7 @@ const chalk = require("chalk");
 const { textSync } = require("figlet");
 const logger = require('./utils/logging');
 const DownloaderFactory = require("./downloader/DownloaderFactory");
-const SongLoaderFactory = require('./songloader/SongLoaderFactory');
+const SongSourceFactory = require('./songsource/SongSourceFactory');
 const config = require("../config.json");
 //endregion
 
@@ -17,10 +17,10 @@ async function main() {
     // Initialize app
     spinner = ora("Initializing... 🤔").start();
     establishShutdownProcedure();
-    const songLoader = SongLoaderFactory.Create(config);
+    const songSource = SongSourceFactory.Create(config);
     const downloader = DownloaderFactory.Create(config);
 
-    if (!(await songLoader.Initialize())) {
+    if (!(await songSource.Initialize())) {
         spinner.fail("Failed to initialize song loader! 😞");
         return;
     }
@@ -32,12 +32,12 @@ async function main() {
 
     // Retrieve songs
     spinner = ora("Loading songs... 🥁").start();
-    if (!(await songLoader.LoadSongs())) {
+    if (!(await songSource.LoadSongs())) {
         spinner.fail("Failed to load songs! 🎻");
         return;
     }
 
-    const songs = songLoader.GetSongs();
+    const songs = songSource.GetSongs();
     if (songs.length === 0) {
         spinner.succeed("No songs need downloading! 🎹");
         return;
@@ -48,7 +48,7 @@ async function main() {
     // Download songs
     downloader.SetCompletionCallback(async () => {
         try {
-            await songLoader.MarkAllAsProcessed(songs);
+            await songSource.MarkAllAsProcessed(songs);
             spinner.succeed("Download complete! 🎉🎉");
         } catch (e) {
             spinner.fail("Failed to mark songs as processed! 😞");

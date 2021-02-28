@@ -1,11 +1,11 @@
 //region imports
 const { google } = require('googleapis');
-const ISongLoader = require("../ISongLoader");
+const ISongSource = require("../ISongSource");
 const GoogleSheetAuthorizer = require("./GoogleSheetAuthorizer");
 const Song = require('../../model/Song');
 //endregion
 
-class GoogleSheetSongLoader extends ISongLoader {
+class GoogleSheetSongSource extends ISongSource {
     constructor(config) {
         super();
         this.sheetId = config.sheetId;
@@ -91,4 +91,4 @@ class GoogleSheetSongLoader extends ISongLoader {
     };
 }
 
-module.exports = GoogleSheetSongLoader;
+module.exports = GoogleSheetSongSource;
