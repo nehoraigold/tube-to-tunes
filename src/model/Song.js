@@ -1,8 +1,9 @@
 class Song {
-    constructor(name, artist, url) {
+    constructor(name, artist, videoId, durationSeconds = 0) {
         this.name = name;
         this.artist = artist;
-        this.url = url;
+        this.youtubeVideoId = videoId;
+        this.durationSeconds = durationSeconds;
     }
 }
 
