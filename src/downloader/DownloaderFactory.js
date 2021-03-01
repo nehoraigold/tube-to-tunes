@@ -1,6 +1,5 @@
 //region imports
-const { readFileSync, existsSync } = require("fs");
-const { join, dirname } = require("path");
+const { getAbsolutePath, getJsonFromFile } = require("../utils/utils");
 const DownloaderType = require("./DownloaderType");
 const Yt2Mp3Downloader = require("./Yt2Mp3Downloader");
 //endregion
@@ -18,12 +17,8 @@ class DownloaderFactory {
     }
 
     static getDownloaderConfig(config) {
-        const downloaderConfigPath = join(dirname(require.main.filename), "..", "configs", `${config.downloader}.json`);
-        if (!existsSync(downloaderConfigPath)) {
-            return null;
-        }
-        const downloaderConfigFile = readFileSync(downloaderConfigPath);
-        const downloaderConfig = JSON.parse(downloaderConfigFile.toString());
+        const downloaderConfigPath = getAbsolutePath(`configs/${config.downloader}.json`);
+        const downloaderConfig = getJsonFromFile(downloaderConfigPath);
         downloaderConfig.outputDirectory = config.outputDirectory;
         return downloaderConfig;
     }

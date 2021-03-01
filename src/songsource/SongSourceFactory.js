@@ -1,6 +1,5 @@
 //region imports
-const { readFileSync, existsSync } = require("fs");
-const { join, dirname } = require("path");
+const { getAbsolutePath, getJsonFromFile } = require("../utils/utils");
 const SongSourceType = require("./SongSourceType");
 const GoogleSheetsSongSource = require("./googlesheets/GoogleSheetSongSource");
 //endregion
@@ -18,12 +17,8 @@ class SongSourceFactory {
     }
 
     static getSongSourceConfig(songSourceType) {
-        const songSourceConfigPath = join(dirname(require.main.filename), "..", "configs", `${songSourceType}.json`);
-        if (!existsSync(songSourceConfigPath)) {
-            return null;
-        }
-        const songSourceConfigFile = readFileSync(songSourceConfigPath);
-        return JSON.parse(songSourceConfigFile.toString());
+        const songSourceConfigPath = getAbsolutePath(`configs/${songSourceType}.json`);
+        return getJsonFromFile(songSourceConfigPath);
     }
 }
 
