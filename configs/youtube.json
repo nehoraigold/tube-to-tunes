@@ -1,0 +1,5 @@
+{
+  "auth": {
+    "apiKeyPath": "credentials/youtube.key"
+  }
+}
