@@ -1,32 +1,38 @@
 //region imports
-const fs = require('fs');
+const { writeFileSync, existsSync } = require('fs');
 const { question } = require('readline-sync');
 const { google } = require('googleapis');
-const logger = require("../../utils/logging");
+const { getJsonFromFile } = require("../utils/utils");
+const logger = require("../utils/logging");
+const IAuthorizer = require("./IAuthorizer");
 //endregion
 
-class GoogleSheetAuthorizer {
+class GoogleAuthorizer extends IAuthorizer {
     constructor(config) {
+        super();
         this.tokenPath = config.tokenPath;
         this.credentialsPath = config.credentialsPath;
         this.scopes = config.scopes;
         this.auth = null;
     }
 
+    Get = () => {
+        return this.auth;
+    };
+
     Authorize = async () => {
-        const credentials = JSON.parse(fs.readFileSync(this.credentialsPath).toString());
+        const credentials = getJsonFromFile(this.credentialsPath);
         const { client_id, client_secret, redirect_uris } = credentials.installed;
         const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
 
-        let token;
-        try {
-            token = fs.readFileSync(this.tokenPath);
-        } catch (err) {
+        if (!existsSync(this.tokenPath)) {
             return await this.getNewToken(oAuth2Client);
         }
 
-        oAuth2Client.setCredentials(JSON.parse(token));
+        const token = getJsonFromFile(this.tokenPath);
+        oAuth2Client.setCredentials(token);
         this.auth = oAuth2Client;
+        return true;
     };
 
     getNewToken = async (oAuth2Client) => {
@@ -42,19 +48,22 @@ class GoogleSheetAuthorizer {
         try {
             token = await oAuth2Client.getToken(code);
         } catch (err) {
-            return logger.err(`Error while trying to retrieve access token: ${err}`);
+            logger.err(`Error while trying to retrieve access token: ${err}`);
+            return false;
         }
 
         oAuth2Client.setCredentials(token);
         try {
-            fs.writeFileSync(this.tokenPath, JSON.stringify(token));
+            writeFileSync(this.tokenPath, JSON.stringify(token, null, 4));
         } catch (err) {
-            return logger.err(err);
+            logger.err(err);
+            return false;
         }
 
         logger.log(`Authorization token stored to ${this.tokenPath}`);
         this.auth = oAuth2Client;
+        return true;
     };
 }
 
-module.exports = GoogleSheetAuthorizer;
+module.exports = GoogleAuthorizer;

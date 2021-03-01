@@ -1,7 +1,8 @@
 //region imports
 const { google } = require('googleapis');
+const { getYoutubeVideoIdFromUrl } = require("../../utils/utils");
 const ISongSource = require("../ISongSource");
-const GoogleSheetAuthorizer = require("./GoogleSheetAuthorizer");
+const GoogleSheetAuthorizer = require("../../authorizer/GoogleAuthorizer");
 const Song = require('../../model/Song');
 //endregion
 
@@ -15,13 +16,7 @@ class GoogleSheetSongSource extends ISongSource {
     }
 
     Initialize = async () => {
-        try {
-            await this.authorizer.Authorize();
-            return true;
-        } catch (err) {
-            logger.err(err);
-            return false;
-        }
+        return await this.authorizer.Authorize();
     };
 
     LoadSongs = async () => {
@@ -56,7 +51,7 @@ class GoogleSheetSongSource extends ISongSource {
     MarkAllAsProcessed = async (songs) => {
         const DATE_PROCESSED_COLUMN = "D";
         const range = `${DATE_PROCESSED_COLUMN}${this.range.lowBound + 1}:${DATE_PROCESSED_COLUMN}${this.range.highBound + 1}`;
-        const sheets = google.sheets({ version: 'v4', auth: this.authorizer.auth });
+        const sheets = google.sheets({ version: 'v4', auth: this.authorizer.Get() });
         const dateProcessed = new Date();
         const values = Array(songs.length).fill(dateProcessed);
         const request = {
@@ -65,7 +60,7 @@ class GoogleSheetSongSource extends ISongSource {
         };
 
         await sheets.spreadsheets.values.batchUpdate({
-            auth: this.authorizer.auth,
+            auth: this.authorizer.Get(),
             spreadsheetId: this.sheetId,
             requestBody: request
         });
@@ -73,7 +68,7 @@ class GoogleSheetSongSource extends ISongSource {
 
     loadSpreadsheet = async () => {
         const range = "A:E";
-        const sheets = google.sheets({ version: 'v4', auth: this.authorizer.auth });
+        const sheets = google.sheets({ version: 'v4', auth: this.authorizer.Get() });
         const { data: { values } } = await sheets.spreadsheets.values.get({
             spreadsheetId: this.sheetId,
             range,
