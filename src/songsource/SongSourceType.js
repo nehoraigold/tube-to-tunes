@@ -1,3 +1,4 @@
 module.exports = {
-    GOOGLE_SHEETS: "googlesheets"
+    GOOGLE_SHEETS: "googlesheets",
+    SPOTIFY: "spotify"
 };
