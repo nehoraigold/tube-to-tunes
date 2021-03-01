@@ -3,7 +3,6 @@ const { path: ffmpegPath } = require('@ffmpeg-installer/ffmpeg');
 const YoutubeToMp3 = require('youtube-mp3-downloader');
 const IDownloader = require('./IDownloader');
 const CliProgressBar = require("../progressbar/CliProgressBar");
-const { stringToMap, getQueryParamsString } = require('../utils/utils');
 //endregion
 
 class Yt2Mp3Downloader extends IDownloader {
@@ -34,22 +33,12 @@ class Yt2Mp3Downloader extends IDownloader {
 
     Download = (song) => {
         const filename = `${song.name} - ${song.artist}.mp3`;
-        const videoId = this.getVideoId(song.url);
-        this.progressBar.AddBar(videoId, filename);
-        this.YD.download(videoId, filename);
+        this.progressBar.AddBar(song.youtubeVideoId, filename);
+        this.YD.download(song.youtubeVideoId, filename);
     };
 
     SetCompletionCallback = (completionCallback) => {
         this.completionCallback = completionCallback;
-    };
-
-    getVideoId = (url) => {
-        const VIDEO_ID_KEY = "v";
-        const PAIR_DELIMITER = "&";
-        const KEY_VALUE_DELIMITER = "=";
-        const queryParams = getQueryParamsString(url);
-        const params = stringToMap(queryParams, PAIR_DELIMITER, KEY_VALUE_DELIMITER);
-        return params[VIDEO_ID_KEY];
     };
 
     progress = (event) => {

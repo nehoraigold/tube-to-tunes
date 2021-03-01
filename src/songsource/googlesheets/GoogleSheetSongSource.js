@@ -40,7 +40,8 @@ class GoogleSheetSongSource extends ISongSource {
             }
             return isRelevantRow;
         });
-        this.songs = relevantRows.map((row) => new Song(row[TITLE_INDEX], row[ARTIST_INDEX], row[URL_INDEX]));
+        this.songs = relevantRows.map((row) =>
+            new Song(row[TITLE_INDEX], row[ARTIST_INDEX], getYoutubeVideoIdFromUrl(row[URL_INDEX])));
         return true;
     };
 
