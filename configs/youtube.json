@@ -1,4 +1,5 @@
 {
+  "searchAlgo": "OfficialAudio",
   "auth": {
     "apiKeyPath": "credentials/youtube.key"
   }
