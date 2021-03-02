@@ -6,11 +6,13 @@ const CliProgressBar = require("../progressbar/CliProgressBar");
 //endregion
 
 class Yt2Mp3Downloader extends IDownloader {
-    constructor(config) {
+    constructor(config, metadataWriter) {
         super();
         this.config = config;
+        this.metadataWriter = metadataWriter;
         this.completionCallback = null;
         this.progressBar = new CliProgressBar();
+        this.onFinished = {};
     }
 
     Initialize = () => {
@@ -34,6 +36,9 @@ class Yt2Mp3Downloader extends IDownloader {
     Download = (song) => {
         const filename = `${song.name} - ${song.artist}.mp3`;
         this.progressBar.AddBar(song.youtubeVideoId, filename);
+        this.onFinished[song.youtubeVideoId] = async (filename) => {
+            await this.metadataWriter.WriteMetadata(filename, song);
+        };
         this.YD.download(song.youtubeVideoId, filename);
     };
 
@@ -45,8 +50,15 @@ class Yt2Mp3Downloader extends IDownloader {
         this.progressBar.UpdateBar(event.videoId, event.progress.percentage);
     };
 
-    finish = async (error, event) => {
-        this.progressBar.FinishBar(event.videoId);
+    finish = async (error, { videoId, file }) => {
+        if (error) {
+            logger.err("Error finishing download -", error);
+            return;
+        }
+        if (this.onFinished[videoId]) {
+            await this.onFinished[videoId](file);
+        }
+        this.progressBar.FinishBar(videoId);
         if (this.progressBar.AllDone()) {
             await this.complete();
         }
