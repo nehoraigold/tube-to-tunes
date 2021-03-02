@@ -1,5 +1,5 @@
 //region imports
-const { getAbsolutePath, getJsonFromFile } = require("../utils/utils");
+const { getConfig } = require("../utils/utils");
 const DownloaderType = require("./DownloaderType");
 const Yt2Mp3Downloader = require("./Yt2Mp3Downloader");
 //endregion
@@ -17,10 +17,9 @@ class DownloaderFactory {
     }
 
     static getDownloaderConfig(config) {
-        const downloaderConfigPath = getAbsolutePath(`configs/${config.downloader}.json`);
-        const downloaderConfig = getJsonFromFile(downloaderConfigPath);
-        downloaderConfig.outputDirectory = config.outputDirectory;
-        return downloaderConfig;
+        const { downloader, outputDirectory } = config;
+        const downloaderConfig = getConfig(downloader);
+        return { ...downloaderConfig, outputDirectory };
     }
 }
 
