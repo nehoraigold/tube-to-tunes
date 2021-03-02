@@ -1,9 +1,10 @@
 //region imports
 const SpotifyAPI = require("spotify-web-api-node");
+const { MILLISECONDS_IN_SECOND } = require("../../utils/constants");
 const ISongSource = require("../ISongSource");
 const Song = require("../../model/Song");
 const SpotifyAuthorizer = require("../../authorizer/SpotifyAuthorizer");
-const { SpotifyTrackField, parseSpotifyTrackFields } = require("./SpotifyTrackFieldParser");
+const { SpotifyTrackField, parseSpotifyTrackFields, extractFieldsFromTrack } = require("./SpotifyTrackFieldParser");
 //endregion
 
 class SpotifySongSource extends ISongSource {
@@ -69,6 +70,9 @@ class SpotifySongSource extends ISongSource {
             SpotifyTrackField.TITLE,
             SpotifyTrackField.ARTIST,
             SpotifyTrackField.ALBUM,
+            SpotifyTrackField.TRACK_NUMBER,
+            SpotifyTrackField.ALBUM_TOTAL_TRACKS,
+            SpotifyTrackField.ALBUM_RELEASE_DATE,
             SpotifyTrackField.SONG_LENGTH
         );
         const { body: { items } } = await this.api.getPlaylistTracks(playlistId, { fields });
@@ -78,13 +82,18 @@ class SpotifySongSource extends ISongSource {
     convertTracksToSongs = async (tracks) => {
         const songs = [];
         for (const { track } of tracks) {
-            const name = track.name;
-            const artist = track.artists[0].name;
-            const url = await this.searcher.Search({ name, artist });
-            songs.push(new Song(name, artist, url));
+            const { name, artist, album, trackNumber, albumTotalTracks, durationMs, dateReleased } = extractFieldsFromTrack(track);
+            const videoId = await this.getVideoId({ name, artist, album });
+            const durationSeconds = Math.ceil(durationMs / MILLISECONDS_IN_SECOND);
+            const yearReleased = dateReleased.substring(0, 4);
+            songs.push(new Song(name, artist, videoId, album, `${trackNumber}/${albumTotalTracks}`, yearReleased, durationSeconds));
         }
         return songs;
     };
+
+    getVideoId = async (track) => {
+        return await this.searcher.Search(track);
+    }
 }
 
 module.exports = SpotifySongSource;
