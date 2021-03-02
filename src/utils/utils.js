@@ -1,6 +1,7 @@
 //region imports
 const { readFileSync, existsSync } = require("fs");
 const { join, dirname } = require("path");
+const { CONFIGS_DIRECTORY } = require("./constants");
 //endregion
 
 const getQueryParamsString = (url) => {
@@ -43,10 +44,15 @@ const getJsonFromFile = (filepath) => {
     return JSON.parse(jsonFile.toString());
 };
 
+const getConfig = (configType) => {
+    return getJsonFromFile(getAbsolutePath(`${CONFIGS_DIRECTORY}/${configType}.json`));
+};
+
 module.exports = {
     getQueryParamsString,
     stringToMap,
     getYoutubeVideoIdFromUrl,
     getAbsolutePath,
-    getJsonFromFile
+    getJsonFromFile,
+    getConfig
 };
