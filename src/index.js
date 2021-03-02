@@ -20,11 +20,11 @@ async function main() {
     const songSource = SongSourceFactory.Create(config);
     const downloader = DownloaderFactory.Create(config);
 
-    if (!(await songSource.Initialize())) {
+    if (!songSource || !(await songSource.Initialize())) {
         spinner.fail("Failed to initialize song loader! 😞");
         return;
     }
-    if (!(await downloader.Initialize())) {
+    if (!downloader || !(await downloader.Initialize())) {
         spinner.fail("Failed to initialize downloader! 😞");
         return;
     }

@@ -1,0 +1,7 @@
+const MILLISECONDS_IN_SECOND = 1000;
+const CONFIGS_DIRECTORY = "configs";
+
+module.exports = {
+    MILLISECONDS_IN_SECOND,
+    CONFIGS_DIRECTORY
+};
