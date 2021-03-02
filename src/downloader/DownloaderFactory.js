@@ -6,8 +6,16 @@ const Yt2Mp3Downloader = require("./Yt2Mp3Downloader");
 
 class DownloaderFactory {
     static Create(config) {
-        const downloaderType = config.downloader;
-        const downloaderConfig = DownloaderFactory.getDownloaderConfig(config);
+        try {
+            const downloaderConfig = this.getDownloaderConfig(config);
+            return this.createDownloader(config.downloader, downloaderConfig);
+        } catch (err) {
+            logger.err(err);
+            return null;
+        }
+    }
+
+    static createDownloader(downloaderType, downloaderConfig) {
         switch (downloaderType) {
             case DownloaderType.YT2MP3:
                 return new Yt2Mp3Downloader(downloaderConfig);

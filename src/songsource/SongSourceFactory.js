@@ -8,7 +8,15 @@ const YouTubeSearcher = require("../searcher/YouTubeSearcher");
 
 class SongSourceFactory {
     static Create(config) {
-        const songSourceType = config.songSource;
+        try {
+            return this.createSongSource(config.songSource);
+        } catch (err) {
+            logger.err(err);
+            return null;
+        }
+    }
+
+    static createSongSource(songSourceType) {
         const songSourceConfig = getConfig(songSourceType);
         switch (songSourceType) {
             case SongSourceType.GOOGLE_SHEETS:
@@ -17,7 +25,7 @@ class SongSourceFactory {
                 const searcher = new YouTubeSearcher(getConfig("youtube"));
                 return new SpotifySongSource(songSourceConfig, searcher);
             default:
-                throw new Error(`No such song source type ${songSourceType}`);
+                throw `No such song source type - ${songSourceType}`;
         }
     }
 }
