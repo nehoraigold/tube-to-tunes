@@ -1,11 +1,11 @@
 //region imports
-const { existsSync } = require("fs");
+const { path: ffmpegPath } = require("@ffmpeg-installer/ffmpeg");
 const ffmetadata = require("ffmetadata");
 //endregion
 
 class FFMetadataWriter {
     constructor() {
-        this.throwIfFfmpegDoesNotExist();
+        ffmetadata.setFfmpegPath(ffmpegPath);
     }
 
     WriteMetadata = async (filename, song) => {
@@ -21,30 +21,6 @@ class FFMetadataWriter {
             logger.err("Error updating metadata - ", err);
         }
     };
-
-    throwIfFfmpegDoesNotExist() {
-        if (!this.ffmpegExists()) {
-            throw `Can't find FFmpeg! Make sure your PATH can find it or set environment variable FFMPEG_PATH`;
-        }
-    }
-
-    ffmpegExists() {
-        const FFMPEG_ENVIRONMENT_VARIABLE = "FFMPEG_PATH";
-        const FFMPEG_EXECUTABLE = "ffmpeg";
-        const PATH_DELIMITER = ":";
-
-        if (process.env[FFMPEG_ENVIRONMENT_VARIABLE]) {
-            return true;
-        }
-
-        const paths = process.env.PATH.split(PATH_DELIMITER);
-        for (const path of paths) {
-            if (existsSync(`${path}/${FFMPEG_EXECUTABLE}`)) {
-                return true;
-            }
-        }
-        return false;
-    }
 }
 
 module.exports = FFMetadataWriter;
