@@ -40,5 +40,6 @@ No need to modify this value for any reason.
 
 # Ideas For Future Improvement
 - Debug mode
-- Fill in music info (song name, album, album artwork, track number) automatically
+- Fill in music info (album artwork) automatically
 - SongSource: YouTube playlist
+- Change name of saved mp3 files

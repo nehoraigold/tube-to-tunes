@@ -1,7 +1,7 @@
 //region imports
 const { readFileSync, existsSync } = require("fs");
 const { join, dirname } = require("path");
-const { CONFIGS_DIRECTORY } = require("./constants");
+const { CONFIGS_DIRECTORY, SECONDS_IN_MINUTE, MINUTES_IN_HOUR } = require("./constants");
 //endregion
 
 const getQueryParamsString = (url) => {
@@ -48,11 +48,26 @@ const getConfig = (configType) => {
     return getJsonFromFile(getAbsolutePath(`${CONFIGS_DIRECTORY}/${configType}.json`));
 };
 
+const durationStringToSeconds = (durationString) => {
+    const HOUR_INDEX = 6;
+    const MINUTE_INDEX = 7;
+    const SECOND_INDEX = 8;
+
+    const durationRegex = /^(-?)P(?=\d|T\d)(?:(\d+)Y)?(?:(\d+)M)?(?:(\d+)([DW]))?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?)?$/;
+    const matches = durationString.match(durationRegex);
+
+    let seconds = matches[SECOND_INDEX] ? parseInt(matches[SECOND_INDEX]) : 0;
+    seconds += matches[MINUTE_INDEX] ? parseInt(matches[MINUTE_INDEX]) * SECONDS_IN_MINUTE : 0;
+    seconds += matches[HOUR_INDEX] ? parseInt(matches[HOUR_INDEX]) * MINUTES_IN_HOUR * SECONDS_IN_MINUTE : 0;
+    return seconds;
+};
+
 module.exports = {
     getQueryParamsString,
     stringToMap,
     getYoutubeVideoIdFromUrl,
     getAbsolutePath,
     getJsonFromFile,
-    getConfig
+    getConfig,
+    durationStringToSeconds
 };

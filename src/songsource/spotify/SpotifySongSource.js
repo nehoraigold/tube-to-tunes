@@ -83,9 +83,9 @@ class SpotifySongSource extends ISongSource {
         const songs = [];
         for (const { track } of tracks) {
             const { name, artist, album, trackNumber, albumTotalTracks, durationMs, dateReleased } = extractFieldsFromTrack(track);
-            const videoId = await this.getVideoId({ name, artist, album });
             const durationSeconds = Math.ceil(durationMs / MILLISECONDS_IN_SECOND);
             const yearReleased = dateReleased.substring(0, 4);
+            const videoId = await this.getVideoId({ name, artist, album, durationSeconds });
             songs.push(new Song(name, artist, videoId, album, `${trackNumber}/${albumTotalTracks}`, yearReleased, durationSeconds));
         }
         return songs;
