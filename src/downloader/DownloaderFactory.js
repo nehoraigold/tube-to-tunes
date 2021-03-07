@@ -11,7 +11,7 @@ class DownloaderFactory {
             const downloaderConfig = this.getDownloaderConfig(config);
             return this.createDownloader(config.downloader, downloaderConfig);
         } catch (err) {
-            logger.err(err);
+            logger.Err(err);
             return null;
         }
     }

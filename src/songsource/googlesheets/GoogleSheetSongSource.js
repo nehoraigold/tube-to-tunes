@@ -29,7 +29,7 @@ class GoogleSheetSongSource extends ISongSource {
         try {
             sheet = await this.loadSpreadsheet()
         } catch (err) {
-            logger.err(err);
+            logger.Err(err);
             return false;
         }
 

@@ -16,6 +16,7 @@ class Yt2Mp3Downloader extends IDownloader {
     }
 
     Initialize = () => {
+        logger.Debug("Yt2Mp3Downloader initializing...");
         this.YD = new YoutubeToMp3({
             ffmpegPath,
             outputPath: this.config.outputDirectory,
@@ -25,7 +26,7 @@ class Yt2Mp3Downloader extends IDownloader {
         });
 
         this.YD.on("error", (error) => {
-            logger.err(error);
+            logger.Err(error);
             process.exit(1);
         });
         this.YD.on("finished", this.finish);
@@ -52,7 +53,7 @@ class Yt2Mp3Downloader extends IDownloader {
 
     finish = async (error, { videoId, file }) => {
         if (error) {
-            logger.err("Error finishing download -", error);
+            logger.Err("Error finishing download -", error);
             return;
         }
         if (this.onFinished[videoId]) {
@@ -65,6 +66,7 @@ class Yt2Mp3Downloader extends IDownloader {
     };
 
     complete = async () => {
+        logger.Debug("Completed downloading all songs!");
         this.progressBar.Stop();
         if (this.completionCallback) {
             await this.completionCallback();

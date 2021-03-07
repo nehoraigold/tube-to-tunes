@@ -11,7 +11,7 @@ class SongSourceFactory {
         try {
             return this.createSongSource(config.songSource);
         } catch (err) {
-            logger.err(err);
+            logger.Err(err);
             return null;
         }
     }

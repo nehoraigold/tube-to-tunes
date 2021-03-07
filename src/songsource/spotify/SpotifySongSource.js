@@ -19,10 +19,11 @@ class SpotifySongSource extends ISongSource {
     }
 
     Initialize = async () => {
+        logger.Debug("Initializing Spotify song source.");
         try {
             return await this.authorizer.Authorize() && await this.searcher.Initialize();
         } catch (err) {
-            logger.err(err);
+            logger.Err(err);
             return false;
         }
     };
@@ -42,7 +43,7 @@ class SpotifySongSource extends ISongSource {
             this.songs = await this.convertTracksToSongs(tracks);
             return true;
         } catch (err) {
-            logger.err(err);
+            logger.Err(err);
             return false;
         }
     };
@@ -52,20 +53,22 @@ class SpotifySongSource extends ISongSource {
     };
 
     MarkAllAsProcessed = async () => {
-        console.log("Can't mark these songs as processed. You must remove them from the playlist manually.");
+        logger.Info("Can't mark these songs as processed. You must remove them from the playlist manually.");
         return true;
     };
 
     getPlaylist = async () => {
+        logger.Debug(`Loading playlist '${this.playlistName}'`);
         const { body } = await this.api.getUserPlaylists(this.userId);
         const playlist = body.items.filter(item => item.name === this.playlistName)[0];
         if (!playlist) {
-            logger.err(`Could not find playlist '${this.playlistName}' for user ${this.userId}. Is it public?`);
+            logger.Err(`Could not find playlist '${this.playlistName}' for user ${this.userId}. Is it public?`);
         }
         return playlist;
     };
 
     getTracks = async (playlistId) => {
+        logger.Debug("Retrieving songs from playlist.");
         const fields = parseSpotifyTrackFields(
             SpotifyTrackField.TITLE,
             SpotifyTrackField.ARTIST,
@@ -80,6 +83,7 @@ class SpotifySongSource extends ISongSource {
     };
 
     convertTracksToSongs = async (tracks) => {
+        logger.Debug("Finding YouTube video IDs for songs...");
         const songs = [];
         for (const { track } of tracks) {
             const { name, artist, album, trackNumber, albumTotalTracks, durationMs, dateReleased } = extractFieldsFromTrack(track);

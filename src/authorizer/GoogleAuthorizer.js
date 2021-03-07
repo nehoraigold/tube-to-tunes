@@ -3,7 +3,6 @@ const { writeFileSync, existsSync } = require('fs');
 const { question } = require('readline-sync');
 const { google } = require('googleapis');
 const { getJsonFromFile } = require("../utils/utils");
-const logger = require("../utils/logging");
 const IAuthorizer = require("./IAuthorizer");
 //endregion
 
@@ -21,6 +20,7 @@ class GoogleAuthorizer extends IAuthorizer {
     };
 
     Authorize = async () => {
+        logger.Debug("Google authorizer authorizing...");
         const credentials = getJsonFromFile(this.credentialsPath);
         const { client_id, client_secret, redirect_uris } = credentials.installed;
         const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
@@ -32,6 +32,7 @@ class GoogleAuthorizer extends IAuthorizer {
         const token = getJsonFromFile(this.tokenPath);
         oAuth2Client.setCredentials(token);
         this.auth = oAuth2Client;
+        logger.Debug("Google authorization completed successfully.");
         return true;
     };
 
@@ -40,15 +41,15 @@ class GoogleAuthorizer extends IAuthorizer {
             access_type: 'online',
             scope: this.scopes,
         });
-        logger.log(`Authorize this app by visiting this url: ${authUrl}`);
-        logger.log("Enter the code from that page here:");
+        logger.Info(`Authorize this app by visiting this url: ${authUrl}`);
+        logger.Info("Enter the code from that page here:");
         const code = question('');
         
         let token;
         try {
             token = await oAuth2Client.getToken(code);
         } catch (err) {
-            logger.err(`Error while trying to retrieve access token: ${err}`);
+            logger.Err(`Error while trying to retrieve access token: ${err}`);
             return false;
         }
 
@@ -56,11 +57,11 @@ class GoogleAuthorizer extends IAuthorizer {
         try {
             writeFileSync(this.tokenPath, JSON.stringify(token, null, 4));
         } catch (err) {
-            logger.err(err);
+            logger.Err(err);
             return false;
         }
 
-        logger.log(`Authorization token stored to ${this.tokenPath}`);
+        logger.Info(`Authorization token stored to ${this.tokenPath}`);
         this.auth = oAuth2Client;
         return true;
     };

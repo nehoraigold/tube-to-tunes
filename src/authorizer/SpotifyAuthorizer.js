@@ -15,12 +15,14 @@ class SpotifyAuthorizer extends IAuthorizer {
     };
 
     Authorize = async () => {
+        logger.Debug("Spotify authorizer authorizing...");
         const accessToken = await this.getAccessToken();
         if (!accessToken) {
-            logger.err("Unable to retrieve access token.");
+            logger.Err("Unable to retrieve access token.");
             return false;
         }
         this.api.setAccessToken(accessToken);
+        logger.Debug("Spotify authorization completed successfully.");
         return true;
     };
 
@@ -34,7 +36,7 @@ class SpotifyAuthorizer extends IAuthorizer {
             const { body: { access_token } } = await this.api.clientCredentialsGrant();
             return access_token ? access_token : "";
         } catch (err) {
-            logger.err(err);
+            logger.Err(err);
             return "";
         }
     };

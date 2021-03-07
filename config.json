@@ -1,5 +1,6 @@
 {
   "outputDirectory": "/Users/origold/Desktop",
-  "songSource": "googlesheets",
-  "downloader": "yt2mp3"
+  "songSource": "spotify",
+  "downloader": "yt2mp3",
+  "mode": "info"
 }

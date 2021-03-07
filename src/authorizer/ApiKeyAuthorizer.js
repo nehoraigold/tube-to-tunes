@@ -15,14 +15,16 @@ class ApiKeyAuthorizer extends IAuthorizer {
     };
 
     Authorize = async () => {
+        logger.Debug("ApiKeyAuthorizer authorizing...");
         const absolutePath = getAbsolutePath(this.apiKeyPath);
         try {
             const { key } = getJsonFromFile(absolutePath);
             this.apiKey = key;
         } catch (err) {
-            logger.err(err);
+            logger.Err(err);
             return false;
         }
+        logger.Debug("Successfully retrieved API key.");
         return true;
     };
 }

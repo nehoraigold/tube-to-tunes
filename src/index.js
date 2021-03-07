@@ -2,14 +2,14 @@
 const ora = require("ora");
 const chalk = require("chalk");
 const { textSync } = require("figlet");
-const logger = require('./utils/logging');
+const CliLogger = require('./logger/CliLogger');
 const DownloaderFactory = require("./downloader/DownloaderFactory");
 const SongSourceFactory = require('./songsource/SongSourceFactory');
 const config = require("../config.json");
 //endregion
 
 global.spinner = null;
-global.logger = logger;
+global.logger = new CliLogger(config);
 
 async function main() {
     console.log(chalk.green(textSync("Tube 2 Tunes")));
@@ -52,7 +52,7 @@ async function main() {
             spinner.succeed("Download complete! 🎉🎉");
         } catch (e) {
             spinner.fail("Failed to mark songs as processed! 😞");
-            logger.err(e);
+            logger.Err(e);
         }
     });
 
@@ -67,7 +67,7 @@ function establishShutdownProcedure() {
             spinner.stopAndPersist();
             spinner.fail(message);
         } else {
-            logger.err(message);
+            logger.Err(message);
         }
         process.exit(1);
     };
