@@ -1,10 +1,11 @@
 //region imports
 const SpotifyAPI = require("spotify-web-api-node");
 const { MILLISECONDS_IN_SECOND } = require("../../utils/constants");
+const { getYearFromDate } = require("../../utils/utils");
 const ISongSource = require("../ISongSource");
 const Song = require("../../model/Song");
 const SpotifyAuthorizer = require("../../authorizer/SpotifyAuthorizer");
-const { SpotifyTrackField, parseSpotifyTrackFields, extractFieldsFromTrack } = require("./SpotifyTrackFieldParser");
+const { SpotifyTrackField, parseSpotifyTrackFields, extractFieldsFromTrack } = require("../../utils/spotify_utils");
 //endregion
 
 class SpotifySongSource extends ISongSource {
