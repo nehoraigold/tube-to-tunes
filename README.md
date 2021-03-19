@@ -22,6 +22,7 @@ Tube 2 Tunes supports the following song sources:
 
 * Spotify (`"spotify"`)
 * Google Sheets (`"googlesheets"`)
+* YouTube (`youtube`)
 
 Each of these song sources has a configuration of its own, which you
 can (and should) modify in the `configs/` directory. The name of the
@@ -38,7 +39,8 @@ No need to modify this value for any reason.
 
 ### Spotify
 
+### YouTube
+
 # Ideas For Future Improvement
 - Debug mode
-- Fill in music info (song name, album, album artwork, track number) automatically
-- SongSource: YouTube playlist
+- Fill in album artwork automatically
