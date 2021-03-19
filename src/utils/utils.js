@@ -48,11 +48,16 @@ const getConfig = (configType) => {
     return getJsonFromFile(getAbsolutePath(`${CONFIGS_DIRECTORY}/${configType}.json`));
 };
 
+const getYearFromDate = (yyyy_mm_dd) => {
+    return yyyy_mm_dd.substring(0, 4);
+};
+
 module.exports = {
     getQueryParamsString,
     stringToMap,
     getYoutubeVideoIdFromUrl,
     getAbsolutePath,
     getJsonFromFile,
-    getConfig
+    getConfig,
+    getYearFromDate
 };
