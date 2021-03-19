@@ -1,4 +1,5 @@
 module.exports = {
     GOOGLE_SHEETS: "googlesheets",
-    SPOTIFY: "spotify"
+    SPOTIFY: "spotify",
+    YOUTUBE: "youtube"
 };
