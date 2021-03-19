@@ -1,8 +1,12 @@
+//region imports
+const { ErrorType } = require("../utils/constants");
+//endregion
+
 class ISongSource {
-     Initialize = async () => { return false; };
-     LoadSongs = async () => { return false; };
-     GetSongs = () => { return []; };
-     MarkAllAsProcessed = async () => { };
+     Initialize = async () => { throw ErrorType.METHOD_NOT_IMPLEMENTED; };
+     LoadSongs = async () => { throw ErrorType.METHOD_NOT_IMPLEMENTED; };
+     GetSongs = () => { throw ErrorType.METHOD_NOT_IMPLEMENTED; };
+     MarkAllAsProcessed = async () => { throw ErrorType.METHOD_NOT_IMPLEMENTED; };
 }
 
 module.exports = ISongSource;

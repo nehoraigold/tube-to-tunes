@@ -2,7 +2,7 @@
 const { path: ffmpegPath } = require('@ffmpeg-installer/ffmpeg');
 const YoutubeToMp3 = require('youtube-mp3-downloader');
 const IDownloader = require('./IDownloader');
-const CliProgressBar = require("../progressbar/CliProgressBar");
+const CliProgressBar = require("../progress_bar/CliProgressBar");
 //endregion
 
 class Yt2Mp3Downloader extends IDownloader {
