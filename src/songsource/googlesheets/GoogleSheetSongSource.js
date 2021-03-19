@@ -1,6 +1,7 @@
 //region imports
 const { google } = require('googleapis');
 const { getYoutubeVideoIdFromUrl } = require("../../utils/utils");
+const { GOOGLE_SHEETS_API_VERSION } = require("../../utils/constants");
 const ISongSource = require("../ISongSource");
 const GoogleSheetAuthorizer = require("../../authorizer/GoogleAuthorizer");
 const Song = require('../../model/Song');
@@ -52,7 +53,7 @@ class GoogleSheetSongSource extends ISongSource {
     MarkAllAsProcessed = async (songs) => {
         const DATE_PROCESSED_COLUMN = "D";
         const range = `${DATE_PROCESSED_COLUMN}${this.range.lowBound + 1}:${DATE_PROCESSED_COLUMN}${this.range.highBound + 1}`;
-        const sheets = google.sheets({ version: 'v4', auth: this.authorizer.Get() });
+        const sheets = google.sheets({ version: GOOGLE_SHEETS_API_VERSION, auth: this.authorizer.Get() });
         const dateProcessed = new Date();
         const values = Array(songs.length).fill(dateProcessed);
         const request = {
@@ -69,7 +70,7 @@ class GoogleSheetSongSource extends ISongSource {
 
     loadSpreadsheet = async () => {
         const range = "A:E";
-        const sheets = google.sheets({ version: 'v4', auth: this.authorizer.Get() });
+        const sheets = google.sheets({ version: GOOGLE_SHEETS_API_VERSION, auth: this.authorizer.Get() });
         const { data: { values } } = await sheets.spreadsheets.values.get({
             spreadsheetId: this.sheetId,
             range,

@@ -1,5 +1,7 @@
 {
-  "searchAlgo": "OfficialAudio",
+  "playlistId": "PLtYXSOGNBxc9iIgfl0sUsBEpock7g7Hiz",
+  "forceDownloadPlaylist": false,
+  "forceDownloadVideos": false,
   "auth": {
     "apiKeyPath": "credentials/youtube.key"
   }

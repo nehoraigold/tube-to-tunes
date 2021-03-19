@@ -1,10 +1,11 @@
 //region imports
 const SpotifyAPI = require("spotify-web-api-node");
 const { MILLISECONDS_IN_SECOND } = require("../../utils/constants");
+const { getYearFromDate } = require("../../utils/utils");
 const ISongSource = require("../ISongSource");
 const Song = require("../../model/Song");
 const SpotifyAuthorizer = require("../../authorizer/SpotifyAuthorizer");
-const { SpotifyTrackField, parseSpotifyTrackFields, extractFieldsFromTrack } = require("./SpotifyTrackFieldParser");
+const { SpotifyTrackField, parseSpotifyTrackFields, extractFieldsFromTrack } = require("../../utils/spotify_utils");
 //endregion
 
 class SpotifySongSource extends ISongSource {
@@ -85,7 +86,7 @@ class SpotifySongSource extends ISongSource {
             const { name, artist, album, trackNumber, albumTotalTracks, durationMs, dateReleased } = extractFieldsFromTrack(track);
             const videoId = await this.getVideoId({ name, artist, album });
             const durationSeconds = Math.ceil(durationMs / MILLISECONDS_IN_SECOND);
-            const yearReleased = dateReleased.substring(0, 4);
+            const yearReleased = getYearFromDate(dateReleased);
             songs.push(new Song(name, artist, videoId, album, `${trackNumber}/${albumTotalTracks}`, yearReleased, durationSeconds));
         }
         return songs;

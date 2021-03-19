@@ -1,6 +1,10 @@
+//region imports
+const { ErrorType } = require("../utils/constants");
+//endregion
+
 class IAuthorizer {
-    Get = () => {  };
-    Authorize = async () => { return false; };
+    Get = () => { throw ErrorType.METHOD_NOT_IMPLEMENTED; };
+    Authorize = async () => { throw ErrorType.METHOD_NOT_IMPLEMENTED; };
 }
 
 module.exports = IAuthorizer;
