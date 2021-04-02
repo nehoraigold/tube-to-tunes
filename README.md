@@ -22,7 +22,7 @@ Tube 2 Tunes supports the following song sources:
 
 * Spotify (`"spotify"`)
 * Google Sheets (`"googlesheets"`)
-* YouTube (`youtube`)
+* YouTube (`"youtube"`)
 
 Each of these song sources has a configuration of its own, which you
 can (and should) modify in the `configs/` directory. The name of the
