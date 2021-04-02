@@ -20,7 +20,7 @@
     "ora": "^5.3.0",
     "readline-sync": "^1.4.10",
     "spotify-web-api-node": "^5.0.2",
-    "youtube-mp3-downloader": "^0.7.6",
+    "youtube-mp3-downloader": "^0.7.7",
     "ytdl-core": "^4.5.0"
   }
 }
