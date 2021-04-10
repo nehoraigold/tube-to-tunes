@@ -30,36 +30,36 @@ async function main() {
 }
 
 async function initializeApp() {
-    spinner = ora("Initializing... 🤔").start();
+    global.spinner = ora("Initializing... 🤔").start();
     const songSource = SongSourceFactory.Create(config);
     const downloader = DownloaderFactory.Create(config);
 
     if (!songSource || !(await songSource.Initialize())) {
-        spinner.fail("Failed to initialize song loader! 😞");
+        global.spinner.fail("Failed to initialize song loader! 😞");
         return null;
     }
     if (!downloader || !(await downloader.Initialize())) {
-        spinner.fail("Failed to initialize downloader! 😞");
+        global.spinner.fail("Failed to initialize downloader! 😞");
         return null;
     }
-    spinner.succeed("Initialized successfully! 😄");
+    global.spinner.succeed("Initialized successfully! 😄");
     return { songSource, downloader };
 }
 
 async function retrieveSongs(songSource) {
-    spinner = ora("Loading songs... 🥁").start();
+    global.spinner = ora("Loading songs... 🥁").start();
     if (!(await songSource.LoadSongs())) {
-        spinner.fail("Failed to load songs! 🎻");
+        global.spinner.fail("Failed to load songs! 🎻");
         return false;
     }
 
     const songs = songSource.GetSongs();
     if (songs.length === 0) {
-        spinner.succeed("No songs need downloading! 🎹");
+        global.spinner.succeed("No songs need downloading! 🎹");
         return false;
     }
 
-    spinner.succeed(`Successfully loaded ${songs.length} song${songs.length === 1 ? "" : "s"}! 🎹`);
+    global.spinner.succeed(`Successfully loaded ${songs.length} song${songs.length === 1 ? "" : "s"}! 🎹`);
     return songs;
 }
 
@@ -67,23 +67,23 @@ function downloadSongs(songSource, downloader, songs) {
     downloader.SetCompletionCallback(async () => {
         try {
             await songSource.MarkAllAsProcessed(songs);
-            spinner.succeed("Download complete! 🎉🎉");
+            global.spinner.succeed("Download complete! 🎉🎉");
         } catch (e) {
-            spinner.fail("Failed to mark songs as processed! 😞");
+            global.spinner.fail("Failed to mark songs as processed! 😞");
             logger.err(e);
         }
     });
 
-    spinner = ora("Starting download... ⬇️").succeed();
+    global.spinner = ora("Starting download... ⬇️").succeed();
     songs.forEach(song => downloader.Download(song));
 }
 
 function establishShutdownProcedure() {
     const shutdown = () => {
         const message = "Program has terminated. 😳";
-        if (spinner) {
-            spinner.stopAndPersist();
-            spinner.fail(message);
+        if (global.spinner) {
+            global.spinner.stopAndPersist();
+            global.spinner.fail(message);
         } else {
             logger.err(message);
         }
