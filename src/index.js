@@ -13,39 +13,57 @@ global.logger = logger;
 
 async function main() {
     console.log(chalk.green(textSync("Tube 2 Tunes")));
-
-    // Initialize app
-    spinner = ora("Initializing... 🤔").start();
     establishShutdownProcedure();
+
+    const success = await initializeApp();
+    if (!success) {
+        return;
+    }
+    const { songSource, downloader } = success;
+
+    const songs = await retrieveSongs(songSource);
+    if (!songs) {
+        return;
+    }
+
+    downloadSongs(songSource, downloader, songs);
+}
+
+async function initializeApp() {
+    spinner = ora("Initializing... 🤔").start();
     const songSource = SongSourceFactory.Create(config);
     const downloader = DownloaderFactory.Create(config);
 
     if (!songSource || !(await songSource.Initialize())) {
         spinner.fail("Failed to initialize song loader! 😞");
-        return;
+        return null;
     }
     if (!downloader || !(await downloader.Initialize())) {
         spinner.fail("Failed to initialize downloader! 😞");
-        return;
+        return null;
     }
     spinner.succeed("Initialized successfully! 😄");
+    return { songSource, downloader };
+}
 
-    // Retrieve songs
+async function retrieveSongs(songSource) {
     spinner = ora("Loading songs... 🥁").start();
     if (!(await songSource.LoadSongs())) {
         spinner.fail("Failed to load songs! 🎻");
-        return;
+        return false;
     }
 
     const songs = songSource.GetSongs();
     if (songs.length === 0) {
         spinner.succeed("No songs need downloading! 🎹");
-        return;
+        return false;
     }
 
     spinner.succeed(`Successfully loaded ${songs.length} song${songs.length === 1 ? "" : "s"}! 🎹`);
+    return songs;
+}
 
-    // Download songs
+function downloadSongs(songSource, downloader, songs) {
     downloader.SetCompletionCallback(async () => {
         try {
             await songSource.MarkAllAsProcessed(songs);
