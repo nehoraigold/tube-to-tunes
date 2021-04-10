@@ -89,7 +89,7 @@ class YouTubeSongSource extends ISongSource {
     retrieveSongInfo = async (tracks) => {
         for (const { snippet } of tracks) {
             let song = new Song(snippet.title, null, snippet.resourceId.videoId);
-            const songInfo = await this.songInfoSearcher.Search(song.name);
+            const songInfo = await this.songInfoSearcher.FindSongInfo(song.name);
             if (songInfo) {
                 const { name, artist, album, trackNumber, albumTotalTracks, yearReleased } = songInfo;
                 const track = `${trackNumber}/${albumTotalTracks}`;
