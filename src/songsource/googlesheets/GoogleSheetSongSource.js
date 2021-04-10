@@ -7,25 +7,26 @@ const GoogleSheetAuthorizer = require("../../authorizer/GoogleAuthorizer");
 const Song = require('../../model/Song');
 //endregion
 
+const TITLE_INDEX = 0;
+const ARTIST_INDEX = 1;
+const URL_INDEX = 2;
+const UNPROCESSED_SONG_ROW_LENGTH = 3;
+
 class GoogleSheetSongSource extends ISongSource {
-    constructor(config) {
+    constructor(config, songInfoSearcher) {
         super();
         this.sheetId = config.sheetId;
         this.authorizer = new GoogleSheetAuthorizer(config.auth);
+        this.songInfoSearcher = songInfoSearcher;
         this.range = { lowBound: null, highBound: null };
         this.songs = [];
     }
 
     Initialize = async () => {
-        return await this.authorizer.Authorize();
+        return await this.authorizer.Authorize() && await this.songInfoSearcher.Initialize();
     };
 
     LoadSongs = async () => {
-        const TITLE_INDEX = 0;
-        const ARTIST_INDEX = 1;
-        const URL_INDEX = 2;
-        const UNPROCESSED_SONG_ROW_LENGTH = 3;
-
         let sheet = null;
         try {
             sheet = await this.loadSpreadsheet()
@@ -41,9 +42,54 @@ class GoogleSheetSongSource extends ISongSource {
             }
             return isRelevantRow;
         });
-        this.songs = relevantRows.map((row) =>
-            new Song(row[TITLE_INDEX], row[ARTIST_INDEX], getYoutubeVideoIdFromUrl(row[URL_INDEX])));
+
+        this.songs = await this.getSongsFromRows(relevantRows);
         return true;
+    };
+
+
+    loadSpreadsheet = async () => {
+        const range = "A:E";
+        const sheets = google.sheets({ version: GOOGLE_SHEETS_API_VERSION, auth: this.authorizer.Get() });
+        const { data: { values } } = await sheets.spreadsheets.values.get({
+            spreadsheetId: this.sheetId,
+            range,
+        });
+        return values;
+    };
+
+    updateRange = (index) => {
+        if (this.range.lowBound === null || this.range.lowBound > index) {
+            this.range.lowBound = index;
+        }
+        if (this.range.highBound === null || this.range.highBound < index) {
+            this.range.highBound = index;
+        }
+    };
+
+    getSongsFromRows = async (rows) => {
+        const songs = [];
+        for (const row of rows) {
+            const song = await this.getSongFromRow(row);
+            songs.push(song);
+        }
+        return songs;
+    };
+
+    getSongFromRow = async (row) => {
+        const title = row[TITLE_INDEX];
+        const artist = row[ARTIST_INDEX];
+        const youtubeId = getYoutubeVideoIdFromUrl(row[URL_INDEX]);
+
+        const songInfo = await this.songInfoSearcher.FindSongInfo(`${title} ${artist}`);
+
+        if (!songInfo) {
+            return new Song(title, artist, youtubeId);
+        }
+
+        const { album, trackNumber, yearReleased, albumTotalTracks } = songInfo;
+        const trackInfo = `${trackNumber}/${albumTotalTracks}`;
+        return new Song(title, artist, youtubeId, album, trackInfo, yearReleased);
     };
 
     GetSongs = () => {
@@ -66,25 +112,6 @@ class GoogleSheetSongSource extends ISongSource {
             spreadsheetId: this.sheetId,
             requestBody: request
         });
-    };
-
-    loadSpreadsheet = async () => {
-        const range = "A:E";
-        const sheets = google.sheets({ version: GOOGLE_SHEETS_API_VERSION, auth: this.authorizer.Get() });
-        const { data: { values } } = await sheets.spreadsheets.values.get({
-            spreadsheetId: this.sheetId,
-            range,
-        });
-        return values;
-    };
-
-    updateRange = (index) => {
-        if (this.range.lowBound === null || this.range.lowBound > index) {
-            this.range.lowBound = index;
-        }
-        if (this.range.highBound === null || this.range.highBound < index) {
-            this.range.highBound = index;
-        }
     };
 }
 
