@@ -10,7 +10,6 @@ const Song = require('../../model/Song');
 const TITLE_INDEX = 0;
 const ARTIST_INDEX = 1;
 const URL_INDEX = 2;
-const UNPROCESSED_SONG_ROW_LENGTH = 3;
 
 class GoogleSheetSongSource extends ISongSource {
     constructor(config, songInfoSearcher) {
@@ -27,26 +26,16 @@ class GoogleSheetSongSource extends ISongSource {
     };
 
     LoadSongs = async () => {
-        let sheet = null;
         try {
-            sheet = await this.loadSpreadsheet()
+            const sheet = await this.loadSpreadsheet();
+            const relevantRows = this.getUnprocessedRowsFromSheet(sheet);
+            this.songs = await this.getSongsFromRows(relevantRows);
+            return true;
         } catch (err) {
             logger.err(err);
             return false;
         }
-
-        const relevantRows = sheet.filter((row, i) => {
-            const isRelevantRow = row.length === UNPROCESSED_SONG_ROW_LENGTH;
-            if (isRelevantRow) {
-                this.updateRange(i);
-            }
-            return isRelevantRow;
-        });
-
-        this.songs = await this.getSongsFromRows(relevantRows);
-        return true;
     };
-
 
     loadSpreadsheet = async () => {
         const range = "A:E";
@@ -56,6 +45,18 @@ class GoogleSheetSongSource extends ISongSource {
             range,
         });
         return values;
+    };
+
+    getUnprocessedRowsFromSheet = (sheet) => {
+        const UNPROCESSED_SONG_ROW_LENGTH = 3;
+
+        return sheet.filter((row, i) => {
+            const isRelevantRow = row.length === UNPROCESSED_SONG_ROW_LENGTH;
+            if (isRelevantRow) {
+                this.updateRange(i);
+            }
+            return isRelevantRow;
+        });
     };
 
     updateRange = (index) => {
