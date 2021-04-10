@@ -1,7 +1,6 @@
 //region imports
 const SpotifyAPI = require("spotify-web-api-node");
 const { getYearFromDate } = require("../utils/utils");
-const Song = require("../model/Song");
 const ISongInfoSearcher = require("./ISongInfoSearcher");
 const SpotifyAuthorizer = require("../authorizer/SpotifyAuthorizer");
 const { SpotifyTrackField, parseSpotifyTrackFields, extractFieldsFromTrack } = require("../utils/spotify_utils");
@@ -18,7 +17,7 @@ class SpotifySongInfoSearcher extends ISongInfoSearcher {
         return await this.authorizer.Authorize();
     };
 
-    Search = async (searchString) => {
+    FindSongInfo = async (searchString) => {
         const fields = parseSpotifyTrackFields(
             SpotifyTrackField.TITLE,
             SpotifyTrackField.ARTIST,
