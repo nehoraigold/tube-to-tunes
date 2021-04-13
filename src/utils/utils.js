@@ -16,7 +16,7 @@ const stringToMap = (string, pairDelimiter, keyValueDelimiter) => {
 
     const map = {};
     const keyValuePairs = string.split(pairDelimiter);
-    keyValuePairs.forEach(pair => {
+    keyValuePairs.forEach((pair) => {
         const keyVal = pair.split(keyValueDelimiter);
         map[keyVal[KEY_INDEX]] = keyVal[VALUE_INDEX];
     });

@@ -26,7 +26,7 @@ class SpotifySongInfoSearcher extends ISongInfoSearcher {
             SpotifyTrackField.ALBUM_TOTAL_TRACKS,
             SpotifyTrackField.ALBUM_RELEASE_DATE
         );
-        const { body: { tracks: { items } }} = await this.spotify.searchTracks(searchString, { fields });
+        const { body: { tracks: { items } } } = await this.spotify.searchTracks(searchString, { fields });
         if (items.length === 0) {
             return null;
         }

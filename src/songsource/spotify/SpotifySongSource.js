@@ -59,7 +59,7 @@ class SpotifySongSource extends ISongSource {
 
     getPlaylist = async () => {
         const { body } = await this.api.getUserPlaylists(this.userId);
-        const playlist = body.items.filter(item => item.name === this.playlistName)[0];
+        const playlist = body.items.filter((item) => item.name === this.playlistName)[0];
         if (!playlist) {
             global.logger.err(`Could not find playlist '${this.playlistName}' for user ${this.userId}. Is it public?`);
         }
