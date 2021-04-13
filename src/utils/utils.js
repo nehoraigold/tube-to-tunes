@@ -49,7 +49,9 @@ const getConfig = (configType) => {
 };
 
 const getYearFromDate = (yyyy_mm_dd) => {
-    return yyyy_mm_dd.substring(0, 4);
+    const BEGINNING_INDEX = 0;
+    const ENDING_INDEX = 4;
+    return yyyy_mm_dd.substring(BEGINNING_INDEX, ENDING_INDEX);
 };
 
 module.exports = {

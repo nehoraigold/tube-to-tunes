@@ -4,7 +4,7 @@ const { ErrorType } = require("../utils/constants");
 
 class ISongInfoSearcher {
     Initialize = () => { throw ErrorType.METHOD_NOT_IMPLEMENTED; };
-    FindSongInfo = (searchQuery) => { throw ErrorType.METHOD_NOT_IMPLEMENTED; };
+    FindSongInfo = (searchQuery) => { void(searchQuery); throw ErrorType.METHOD_NOT_IMPLEMENTED; };
 }
 
 module.exports = ISongInfoSearcher;

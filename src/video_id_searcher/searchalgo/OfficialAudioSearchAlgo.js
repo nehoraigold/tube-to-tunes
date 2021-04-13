@@ -10,7 +10,7 @@ class OfficialAudioSearchAlgo extends ISearchAlgo {
             part: "snippet",
             chart: "mostPopular",
             type: "video"
-        }
+        };
     }
 
     Search = async (track) => {

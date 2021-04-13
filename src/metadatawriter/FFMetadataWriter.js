@@ -18,7 +18,7 @@ class FFMetadataWriter {
                 date: song.yearReleased
             }, {});
         } catch (err) {
-            logger.err("Error updating metadata - ", err);
+            global.logger.err("Error updating metadata - ", err);
         }
     };
 }

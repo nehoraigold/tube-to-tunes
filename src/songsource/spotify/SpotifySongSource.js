@@ -23,7 +23,7 @@ class SpotifySongSource extends ISongSource {
         try {
             return await this.authorizer.Authorize() && await this.searcher.Initialize();
         } catch (err) {
-            logger.err(err);
+            global.logger.err(err);
             return false;
         }
     };
@@ -43,7 +43,7 @@ class SpotifySongSource extends ISongSource {
             this.songs = await this.convertTracksToSongs(tracks);
             return true;
         } catch (err) {
-            logger.err(err);
+            global.logger.err(err);
             return false;
         }
     };
@@ -53,7 +53,7 @@ class SpotifySongSource extends ISongSource {
     };
 
     MarkAllAsProcessed = async () => {
-        console.log("Can't mark these songs as processed. You must remove them from the playlist manually.");
+        global.logger.log("Can't mark these songs as processed. You must remove them from the playlist manually.");
         return true;
     };
 
@@ -61,7 +61,7 @@ class SpotifySongSource extends ISongSource {
         const { body } = await this.api.getUserPlaylists(this.userId);
         const playlist = body.items.filter(item => item.name === this.playlistName)[0];
         if (!playlist) {
-            logger.err(`Could not find playlist '${this.playlistName}' for user ${this.userId}. Is it public?`);
+            global.logger.err(`Could not find playlist '${this.playlistName}' for user ${this.userId}. Is it public?`);
         }
         return playlist;
     };

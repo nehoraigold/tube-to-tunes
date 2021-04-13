@@ -11,17 +11,17 @@ class DownloaderFactory {
             const downloaderConfig = this.getDownloaderConfig(config);
             return this.createDownloader(config.downloader, downloaderConfig);
         } catch (err) {
-            logger.err(err);
+            global.logger.err(err);
             return null;
         }
     }
 
     static createDownloader(downloaderType, downloaderConfig) {
         switch (downloaderType) {
-            case DownloaderType.YT2MP3:
-                return new Yt2Mp3Downloader(downloaderConfig, new FFMetadataWriter());
-            default:
-                throw `No such downloader type ${downloaderType}`;
+        case DownloaderType.YT2MP3:
+            return new Yt2Mp3Downloader(downloaderConfig, new FFMetadataWriter());
+        default:
+            throw `No such downloader type ${downloaderType}`;
         }
     }
 

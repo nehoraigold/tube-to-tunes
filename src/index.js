@@ -2,9 +2,9 @@
 const ora = require("ora");
 const chalk = require("chalk");
 const { textSync } = require("figlet");
-const logger = require('./utils/logging');
+const logger = require("./utils/logging");
 const DownloaderFactory = require("./downloader/DownloaderFactory");
-const SongSourceFactory = require('./songsource/SongSourceFactory');
+const SongSourceFactory = require("./songsource/SongSourceFactory");
 const config = require("../config.json");
 //endregion
 
@@ -87,12 +87,12 @@ function establishShutdownProcedure() {
         } else {
             logger.err(message);
         }
-        process.exit(1);
+        global.process.exit(1);
     };
 
-    process.on("SIGINT", shutdown);
-    process.on("SIGABRT", shutdown);
-    process.on("SIGTERM", shutdown);
+    global.process.on("SIGINT", shutdown);
+    global.process.on("SIGABRT", shutdown);
+    global.process.on("SIGTERM", shutdown);
 }
 
 main();

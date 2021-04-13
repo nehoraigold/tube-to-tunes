@@ -1,7 +1,7 @@
 //region imports
-const { path: ffmpegPath } = require('@ffmpeg-installer/ffmpeg');
-const YoutubeToMp3 = require('youtube-mp3-downloader');
-const IDownloader = require('./IDownloader');
+const { path: ffmpegPath } = require("@ffmpeg-installer/ffmpeg");
+const YoutubeToMp3 = require("youtube-mp3-downloader");
+const IDownloader = require("./IDownloader");
 const CliProgressBar = require("../progress_bar/CliProgressBar");
 //endregion
 
@@ -25,8 +25,8 @@ class Yt2Mp3Downloader extends IDownloader {
         });
 
         this.YD.on("error", (error) => {
-            logger.err(error);
-            process.exit(1);
+            global.logger.err(error);
+            global.process.exit(1);
         });
         this.YD.on("finished", this.finish);
         this.YD.on("progress", this.progress);
@@ -52,7 +52,7 @@ class Yt2Mp3Downloader extends IDownloader {
 
     finish = async (error, { videoId, file }) => {
         if (error) {
-            logger.err("Error finishing download -", error);
+            global.logger.err("Error finishing download -", error);
             return;
         }
         if (this.onFinished[videoId]) {
