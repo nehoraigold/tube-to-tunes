@@ -17,8 +17,10 @@ class CliProgressBar extends IProgressBar {
     }
 
     AddBar = (id, displayText) => {
+        const STARTING_VALUE = 0;
+        const TOTAL_VALUE = 100;
         this.totalDownloads++;
-        this.currentDownloadBars[id] = this.bar.create(100, 0, { displayText });
+        this.currentDownloadBars[id] = this.bar.create(TOTAL_VALUE, STARTING_VALUE, { displayText });
     };
 
     UpdateBar = (id, percentage) => {

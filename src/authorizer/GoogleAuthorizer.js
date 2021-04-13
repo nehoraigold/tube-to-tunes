@@ -3,6 +3,7 @@ const { writeFileSync, existsSync } = require("fs");
 const { question } = require("readline-sync");
 const { google } = require("googleapis");
 const { getJsonFromFile } = require("../utils/utils");
+const { JSON_SPACING } = require("../utils/constants");
 const IAuthorizer = require("./IAuthorizer");
 //endregion
 
@@ -53,7 +54,7 @@ class GoogleAuthorizer extends IAuthorizer {
 
         oAuth2Client.setCredentials(token);
         try {
-            writeFileSync(this.tokenPath, JSON.stringify(token, null, 4));
+            writeFileSync(this.tokenPath, JSON.stringify(token, null, JSON_SPACING));
         } catch (err) {
             global.logger.err(err);
             return false;
