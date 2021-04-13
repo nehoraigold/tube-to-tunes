@@ -75,7 +75,7 @@ function downloadSongs(songSource, downloader, songs) {
     });
 
     global.spinner = ora("Starting download... ⬇️").succeed();
-    songs.forEach(song => downloader.Download(song));
+    songs.forEach((song) => downloader.Download(song));
 }
 
 function establishShutdownProcedure() {
