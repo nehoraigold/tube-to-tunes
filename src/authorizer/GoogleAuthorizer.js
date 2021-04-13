@@ -26,7 +26,7 @@ class GoogleAuthorizer extends IAuthorizer {
         const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
 
         if (!existsSync(this.tokenPath)) {
-            return await this.getNewToken(oAuth2Client);
+            return await this.successfullyCreatedNewToken(oAuth2Client);
         }
 
         const token = getJsonFromFile(this.tokenPath);
@@ -35,7 +35,20 @@ class GoogleAuthorizer extends IAuthorizer {
         return true;
     };
 
-    getNewToken = async (oAuth2Client) => {
+    successfullyCreatedNewToken = async (oAuth2Client) => {
+        const token = await this.createNewToken(oAuth2Client);
+        if (!token) {
+            return false;
+        }
+        if (!this.storeToken(token)) {
+            return false;
+        }
+        oAuth2Client.setCredentials(token);
+        this.auth = oAuth2Client;
+        return true;
+    };
+
+    createNewToken = async (oAuth2Client) => {
         const authUrl = oAuth2Client.generateAuthUrl({
             access_type: "online",
             scope: this.scopes,
@@ -43,27 +56,25 @@ class GoogleAuthorizer extends IAuthorizer {
         global.logger.log(`Authorize this app by visiting this url: ${authUrl}`);
         global.logger.log("Enter the code from that page here:");
         const code = question("");
-        
-        let token;
+
         try {
-            token = await oAuth2Client.getToken(code);
+            return await oAuth2Client.getToken(code);
         } catch (err) {
             global.logger.err(`Error while trying to retrieve access token: ${err}`);
-            return false;
+            return null;
         }
+    };
 
-        oAuth2Client.setCredentials(token);
+    storeToken = (token) => {
         try {
             writeFileSync(this.tokenPath, JSON.stringify(token, null, JSON_SPACING));
+            global.logger.log(`Authorization token stored to ${this.tokenPath}`);
+            return true;
         } catch (err) {
             global.logger.err(err);
             return false;
         }
-
-        global.logger.log(`Authorization token stored to ${this.tokenPath}`);
-        this.auth = oAuth2Client;
-        return true;
-    };
+    }
 }
 
 module.exports = GoogleAuthorizer;

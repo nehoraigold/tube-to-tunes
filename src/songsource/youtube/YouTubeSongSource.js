@@ -29,7 +29,7 @@ class YouTubeSongSource extends ISongSource {
             return false;
         }
         this.youtube = google.youtube({ version: YOUTUBE_API_VERSION, auth: this.authorizer.Get() });
-        return await this.setPlaylistTitle();
+        return await this.retrievePlaylistTitle();
     };
 
     LoadSongs = async () => {
@@ -45,11 +45,28 @@ class YouTubeSongSource extends ISongSource {
     };
 
     MarkAllAsProcessed = async () => {
-        console.log("Can't mark these songs as processed. You must remove them from the playlist manually.");
+        console.log(`Can't mark these songs as processed. You must remove them from the playlist '${this.playlistTitle}' manually.`);
         return true;
     };
 
-    setPlaylistTitle = async () => {
+    retrievePlaylistTitle = async () => {
+        const playlistTitle = await this.loadPlaylistTitle();
+        if (!playlistTitle) {
+            return false;
+        }
+
+        if (playlistTitle.indexOf(this.downloadedPlaylistTitleAppender) !== -1) {
+            if (!this.forceDownloadPlaylist) {
+                global.logger.err(`The playlist ${playlistTitle} has already been downloaded! Choose a different playlist or enable forceDownload`);
+                return false;
+            }
+            global.logger.log(`The playlist ${playlistTitle} will be downloaded again because the 'forceDownloadPlaylist' option is enabled.`);
+        }
+        this.playlistTitle = playlistTitle;
+        return true;
+    };
+
+    loadPlaylistTitle = async () => {
         const { data } = await this.youtube.playlists.list({
             part: ["snippet", "id"],
             id: this.playlistId
@@ -57,18 +74,9 @@ class YouTubeSongSource extends ISongSource {
         const playlistInfo = data.items[0];
         if (!playlistInfo) {
             global.logger.err(`Could not find YouTube playlist with id ${this.playlistId}. Make it public?`);
-            return false;
+            return null;
         }
-        this.playlistTitle = playlistInfo.snippet.channelTitle;
-
-        if (this.playlistTitle.indexOf(this.downloadedPlaylistTitleAppender) !== -1) {
-            if (!this.forceDownloadPlaylist) {
-                global.logger.err(`The playlist ${this.playlistTitle} has already been downloaded! Choose a different playlist or enable forceDownload`);
-                return false;
-            }
-            global.logger.log(`The playlist ${this.playlistTitle} will be downloaded again because the 'forceDownloadPlaylist' option is enabled.`);
-        }
-        return true;
+        return playlistInfo.snippet.channelTitle;
     };
 
     retrieveTracksFromPlaylist = async () => {
