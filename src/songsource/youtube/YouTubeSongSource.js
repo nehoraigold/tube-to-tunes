@@ -56,17 +56,17 @@ class YouTubeSongSource extends ISongSource {
         });
         const playlistInfo = data.items[0];
         if (!playlistInfo) {
-            logger.err(`Could not find YouTube playlist with id ${this.playlistId}. Make it public?`);
+            global.logger.err(`Could not find YouTube playlist with id ${this.playlistId}. Make it public?`);
             return false;
         }
         this.playlistTitle = playlistInfo.snippet.channelTitle;
 
         if (this.playlistTitle.indexOf(this.downloadedPlaylistTitleAppender) !== -1) {
             if (!this.forceDownloadPlaylist) {
-                logger.err(`The playlist ${this.playlistTitle} has already been downloaded! Choose a different playlist or enable forceDownload`);
+                global.logger.err(`The playlist ${this.playlistTitle} has already been downloaded! Choose a different playlist or enable forceDownload`);
                 return false;
             }
-            logger.log(`The playlist ${this.playlistTitle} will be downloaded again because the 'forceDownloadPlaylist' option is enabled.`);
+            global.logger.log(`The playlist ${this.playlistTitle} will be downloaded again because the 'forceDownloadPlaylist' option is enabled.`);
         }
         return true;
     };
@@ -81,7 +81,7 @@ class YouTubeSongSource extends ISongSource {
             });
             return data.items;
         } catch (e) {
-            logger.err(e);
+            global.logger.err(e);
             return null;
         }
     };
@@ -95,7 +95,7 @@ class YouTubeSongSource extends ISongSource {
                 const track = `${trackNumber}/${albumTotalTracks}`;
                 song = new Song(name, artist, song.youtubeVideoId, album, track, yearReleased);
             } else if (!this.forceDownloadVideos) {
-                logger.err(`Could not retrieve song info for video with ID ${song.youtubeVideoId}: ${song.name}`);
+                global.logger.err(`Could not retrieve song info for video with ID ${song.youtubeVideoId}: ${song.name}`);
                 continue;
             }
             this.songs.push(song);

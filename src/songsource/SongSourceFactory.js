@@ -13,7 +13,7 @@ class SongSourceFactory {
         try {
             return this.createSongSource(config.songSource);
         } catch (err) {
-            logger.err(err);
+            global.logger.err(err);
             return null;
         }
     }
@@ -21,20 +21,20 @@ class SongSourceFactory {
     static createSongSource(songSourceType) {
         const songSourceConfig = getConfig(songSourceType);
         switch (songSourceType) {
-            case SongSourceType.GOOGLE_SHEETS: {
-                const songInfoSearcher = new SpotifySongInfoSearcher(getConfig("spotify"));
-                return new GoogleSheetsSongSource(songSourceConfig, songInfoSearcher);
-            }
-            case SongSourceType.SPOTIFY: {
-                const videoIdSearcher = new VideoIdSearcher(getConfig("video_id_searcher"), getConfig("youtube"));
-                return new SpotifySongSource(songSourceConfig, videoIdSearcher);
-            }
-            case SongSourceType.YOUTUBE: {
-                const songInfoSearcher = new SpotifySongInfoSearcher(getConfig("spotify"));
-                return new YouTubeSongSource(songSourceConfig, songInfoSearcher);
-            }
-            default:
-                throw `No such song source type - ${songSourceType}`;
+        case SongSourceType.GOOGLE_SHEETS: {
+            const songInfoSearcher = new SpotifySongInfoSearcher(getConfig("spotify"));
+            return new GoogleSheetsSongSource(songSourceConfig, songInfoSearcher);
+        }
+        case SongSourceType.SPOTIFY: {
+            const videoIdSearcher = new VideoIdSearcher(getConfig("video_id_searcher"), getConfig("youtube"));
+            return new SpotifySongSource(songSourceConfig, videoIdSearcher);
+        }
+        case SongSourceType.YOUTUBE: {
+            const songInfoSearcher = new SpotifySongInfoSearcher(getConfig("spotify"));
+            return new YouTubeSongSource(songSourceConfig, songInfoSearcher);
+        }
+        default:
+            throw `No such song source type - ${songSourceType}`;
         }
     }
 }

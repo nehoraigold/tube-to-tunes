@@ -1,5 +1,5 @@
 //region imports
-const { getJsonFromFile, getAbsolutePath } = require('../utils/utils');
+const { getJsonFromFile, getAbsolutePath } = require("../utils/utils");
 const IAuthorizer = require("./IAuthorizer");
 //endregion
 
@@ -17,7 +17,7 @@ class SpotifyAuthorizer extends IAuthorizer {
     Authorize = async () => {
         const accessToken = await this.getAccessToken();
         if (!accessToken) {
-            logger.err("Unable to retrieve access token.");
+            global.logger.err("Unable to retrieve access token.");
             return false;
         }
         this.api.setAccessToken(accessToken);
@@ -34,7 +34,7 @@ class SpotifyAuthorizer extends IAuthorizer {
             const { body: { access_token } } = await this.api.clientCredentialsGrant();
             return access_token ? access_token : "";
         } catch (err) {
-            logger.err(err);
+            global.logger.err(err);
             return "";
         }
     };

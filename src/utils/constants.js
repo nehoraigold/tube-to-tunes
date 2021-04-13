@@ -5,8 +5,8 @@ const ErrorType = {
     METHOD_NOT_IMPLEMENTED: "Method not implemented!"
 };
 
-YOUTUBE_API_VERSION = "v3";
-GOOGLE_SHEETS_API_VERSION = "v4";
+const YOUTUBE_API_VERSION = "v3";
+const GOOGLE_SHEETS_API_VERSION = "v4";
 
 module.exports = {
     YOUTUBE_API_VERSION,

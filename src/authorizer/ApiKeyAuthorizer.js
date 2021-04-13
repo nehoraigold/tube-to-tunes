@@ -20,7 +20,7 @@ class ApiKeyAuthorizer extends IAuthorizer {
             const { key } = getJsonFromFile(absolutePath);
             this.apiKey = key;
         } catch (err) {
-            logger.err(err);
+            global.logger.err(err);
             return false;
         }
         return true;

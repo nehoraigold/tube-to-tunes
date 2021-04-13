@@ -1,9 +1,8 @@
 //region imports
-const { writeFileSync, existsSync } = require('fs');
-const { question } = require('readline-sync');
-const { google } = require('googleapis');
+const { writeFileSync, existsSync } = require("fs");
+const { question } = require("readline-sync");
+const { google } = require("googleapis");
 const { getJsonFromFile } = require("../utils/utils");
-const logger = require("../utils/logging");
 const IAuthorizer = require("./IAuthorizer");
 //endregion
 
@@ -37,18 +36,18 @@ class GoogleAuthorizer extends IAuthorizer {
 
     getNewToken = async (oAuth2Client) => {
         const authUrl = oAuth2Client.generateAuthUrl({
-            access_type: 'online',
+            access_type: "online",
             scope: this.scopes,
         });
-        logger.log(`Authorize this app by visiting this url: ${authUrl}`);
-        logger.log("Enter the code from that page here:");
-        const code = question('');
+        global.logger.log(`Authorize this app by visiting this url: ${authUrl}`);
+        global.logger.log("Enter the code from that page here:");
+        const code = question("");
         
         let token;
         try {
             token = await oAuth2Client.getToken(code);
         } catch (err) {
-            logger.err(`Error while trying to retrieve access token: ${err}`);
+            global.logger.err(`Error while trying to retrieve access token: ${err}`);
             return false;
         }
 
@@ -56,11 +55,11 @@ class GoogleAuthorizer extends IAuthorizer {
         try {
             writeFileSync(this.tokenPath, JSON.stringify(token, null, 4));
         } catch (err) {
-            logger.err(err);
+            global.logger.err(err);
             return false;
         }
 
-        logger.log(`Authorization token stored to ${this.tokenPath}`);
+        global.logger.log(`Authorization token stored to ${this.tokenPath}`);
         this.auth = oAuth2Client;
         return true;
     };

@@ -1,10 +1,10 @@
 //region imports
-const { google } = require('googleapis');
+const { google } = require("googleapis");
 const { getYoutubeVideoIdFromUrl } = require("../../utils/utils");
 const { GOOGLE_SHEETS_API_VERSION } = require("../../utils/constants");
 const ISongSource = require("../ISongSource");
 const GoogleSheetAuthorizer = require("../../authorizer/GoogleAuthorizer");
-const Song = require('../../model/Song');
+const Song = require("../../model/Song");
 //endregion
 
 const TITLE_INDEX = 0;
@@ -32,7 +32,7 @@ class GoogleSheetSongSource extends ISongSource {
             this.songs = await this.getSongsFromRows(relevantRows);
             return true;
         } catch (err) {
-            logger.err(err);
+            global.logger.err(err);
             return false;
         }
     };

@@ -25,7 +25,7 @@ class CliProgressBar extends IProgressBar {
         this.currentDownloadBars[id].update(percentage);
     };
 
-    FinishBar = (id) => {
+    FinishBar = () => {
         this.finishCount++;
     };
 
