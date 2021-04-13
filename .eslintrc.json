@@ -47,7 +47,42 @@
         "max-lines-per-function": [
             "warn",
             20
-        ]
+        ],
+        "brace-style": [
+            "error",
+            "1tbs",
+            {
+                "allowSingleLine": true
+            }
+        ],
+        "block-spacing": [
+            "error",
+            "always"
+        ],
+        "func-call-spacing": [
+            "error",
+            "never"
+        ],
+        "keyword-spacing": "error",
+        "comma-spacing": "error",
+        "arrow-spacing": "error",
+        "arrow-parens": "error",
+        "no-confusing-arrow": "error",
+        "object-curly-spacing": [
+            "warn",
+            "always"
+        ],
+        "eol-last": [
+            "error",
+            "always"
+        ],
+        "no-useless-constructor": "error",
+        "no-use-before-define": [
+            "error",
+            "nofunc"
+        ],
+        "prefer-const": "error",
+        "no-var": "error"
     },
     "parser": "babel-eslint",
     "plugins": [
