@@ -21,7 +21,10 @@ class GoogleAuthorizer extends IAuthorizer {
     };
 
     Authorize = async () => {
-        const credentials = getJsonFromFile(this.credentialsPath);
+        const credentials = this.getCredentials();
+        if (!credentials) {
+            return false;
+        }
         const { client_id, client_secret, redirect_uris } = credentials.installed;
         const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
 
@@ -33,6 +36,15 @@ class GoogleAuthorizer extends IAuthorizer {
         oAuth2Client.setCredentials(token);
         this.auth = oAuth2Client;
         return true;
+    };
+
+    getCredentials = () => {
+        try {
+            return getJsonFromFile(this.credentialsPath);
+        } catch (e) {
+            global.logger.err(`${e}\nTo create or access your Google API credentials, click here: https://console.cloud.google.com/apis/dashboard`);
+            return false;
+        }
     };
 
     successfullyCreatedNewToken = async (oAuth2Client) => {
@@ -53,7 +65,7 @@ class GoogleAuthorizer extends IAuthorizer {
             access_type: "online",
             scope: this.scopes,
         });
-        global.logger.log(`Authorize this app by visiting this url: ${authUrl}`);
+        global.logger.log(`Authorize this app by visiting this url:\n${authUrl}`);
         global.logger.log("Enter the code from that page here:");
         const code = question("");
 

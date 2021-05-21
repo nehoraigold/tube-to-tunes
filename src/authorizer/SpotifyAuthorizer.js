@@ -1,5 +1,5 @@
 //region imports
-const { getJsonFromFile, getAbsolutePath } = require("../utils/utils");
+const { getJsonFromFile } = require("../utils/utils");
 const IAuthorizer = require("./IAuthorizer");
 //endregion
 
@@ -25,8 +25,11 @@ class SpotifyAuthorizer extends IAuthorizer {
     };
 
     getCredentials = (relativePath) => {
-        const credentialsPath = getAbsolutePath(relativePath);
-        return getJsonFromFile(credentialsPath);
+        try {
+            return getJsonFromFile(relativePath);
+        } catch (e) {
+            throw `${e}\nTo create or access your Spotify API credentials, click here: https://developer.spotify.com/dashboard/`;
+        }
     };
 
     getAccessToken = async () => {
