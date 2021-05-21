@@ -5,6 +5,7 @@ const { textSync } = require("figlet");
 const logger = require("./utils/logging");
 const DownloaderFactory = require("./downloader/DownloaderFactory");
 const SongSourceFactory = require("./songsource/SongSourceFactory");
+const PromptSongReviewer = require("./song_reviewer/PromptSongReviewer");
 const config = require("../config.json");
 //endregion
 
@@ -19,13 +20,17 @@ async function main() {
     if (!success) {
         return;
     }
-    const { songSource, downloader } = success;
+    const { songSource, reviewer, downloader } = success;
 
-    const songs = await retrieveSongs(songSource);
+    let songs = await retrieveSongs(songSource);
     if (!songs) {
         return;
     }
 
+    songs = await reviewSongs(reviewer, songs);
+    if (!songs) {
+        return;
+    }
     downloadSongs(songSource, downloader, songs);
 }
 
@@ -33,6 +38,7 @@ async function initializeApp() {
     global.spinner = ora("Initializing... 🤔").start();
     const songSource = SongSourceFactory.Create(config);
     const downloader = DownloaderFactory.Create(config);
+    const reviewer = new PromptSongReviewer(config);
 
     if (!songSource || !(await songSource.Initialize())) {
         global.spinner.fail("Failed to initialize song loader! 😞");
@@ -42,8 +48,13 @@ async function initializeApp() {
         global.spinner.fail("Failed to initialize downloader! 😞");
         return null;
     }
+    if (!reviewer) {
+        global.spinner.fail("Failed to initialize reviewer! 😞");
+        return null;
+    }
+
     global.spinner.succeed("Initialized successfully! 😄");
-    return { songSource, downloader };
+    return { songSource, downloader, reviewer };
 }
 
 async function retrieveSongs(songSource) {
@@ -61,6 +72,15 @@ async function retrieveSongs(songSource) {
 
     global.spinner.succeed(`Successfully loaded ${songs.length} song${songs.length === 1 ? "" : "s"}! 🎹`);
     return songs;
+}
+
+async function reviewSongs(reviewer, songs) {
+    const reviewedSongs = await reviewer.Review(songs);
+    if (!reviewedSongs || reviewedSongs.length === 0) {
+        global.spinner.succeed("No songs need downloading! 🎹");
+        return false;
+    }
+    return reviewedSongs;
 }
 
 function downloadSongs(songSource, downloader, songs) {
