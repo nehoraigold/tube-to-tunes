@@ -54,6 +54,14 @@ const getYearFromDate = (yyyy_mm_dd) => {
     return yyyy_mm_dd.substring(BEGINNING_INDEX, ENDING_INDEX);
 };
 
+const capitalize = (string) => {
+    return string[0].toUpperCase() + string.slice(1);
+};
+
+const splitCamelCase = (string) => {
+    return string.replace(/([a-z])([A-Z])/g, "$1 $2");
+};
+
 module.exports = {
     getQueryParamsString,
     stringToMap,
@@ -61,5 +69,7 @@ module.exports = {
     getAbsolutePath,
     getJsonFromFile,
     getConfig,
-    getYearFromDate
+    getYearFromDate,
+    capitalize,
+    splitCamelCase
 };
