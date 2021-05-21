@@ -17,7 +17,7 @@ class GoogleSheetSongSource extends ISongSource {
         this.sheetId = config.sheetId;
         this.authorizer = new GoogleSheetAuthorizer(config.auth);
         this.songInfoSearcher = songInfoSearcher;
-        this.range = { lowBound: null, highBound: null };
+        this.youtubeIdToRowNumber = {};
         this.songs = [];
     }
 
@@ -28,8 +28,7 @@ class GoogleSheetSongSource extends ISongSource {
     LoadSongs = async () => {
         try {
             const sheet = await this.loadSpreadsheet();
-            const relevantRows = this.getUnprocessedRowsFromSheet(sheet);
-            this.songs = await this.getSongsFromRows(relevantRows);
+            this.songs = await this.getSongsFromRows(sheet);
             return true;
         } catch (err) {
             global.logger.err(err);
@@ -47,31 +46,16 @@ class GoogleSheetSongSource extends ISongSource {
         return values;
     };
 
-    getUnprocessedRowsFromSheet = (sheet) => {
-        const UNPROCESSED_SONG_ROW_LENGTH = 3;
-
-        return sheet.filter((row, i) => {
-            const isRelevantRow = row.length === UNPROCESSED_SONG_ROW_LENGTH;
-            if (isRelevantRow) {
-                this.updateRange(i);
-            }
-            return isRelevantRow;
-        });
-    };
-
-    updateRange = (index) => {
-        if (this.range.lowBound === null || this.range.lowBound > index) {
-            this.range.lowBound = index;
-        }
-        if (this.range.highBound === null || this.range.highBound < index) {
-            this.range.highBound = index;
-        }
-    };
-
     getSongsFromRows = async (rows) => {
+        const UNPROCESSED_SONG_ROW_LENGTH = 3;
         const songs = [];
-        for (const row of rows) {
+        for (let rowNumber = 1; rowNumber <= rows.length; rowNumber++) {
+            const row = rows[rowNumber - 1];
+            if (row.length !== UNPROCESSED_SONG_ROW_LENGTH) {
+                continue;
+            }
             const song = await this.getSongFromRow(row);
+            this.youtubeIdToRowNumber[song.youtubeVideoId] = rowNumber;
             songs.push(song);
         }
         return songs;
@@ -98,13 +82,10 @@ class GoogleSheetSongSource extends ISongSource {
     };
 
     MarkAllAsProcessed = async (songs) => {
-        const DATE_PROCESSED_COLUMN = "D";
-        const range = `${DATE_PROCESSED_COLUMN}${this.range.lowBound + 1}:${DATE_PROCESSED_COLUMN}${this.range.highBound + 1}`;
         const sheets = google.sheets({ version: GOOGLE_SHEETS_API_VERSION, auth: this.authorizer.Get() });
-        const dateProcessed = new Date();
-        const values = Array(songs.length).fill(dateProcessed);
+        const data = songs.map((song) => this.getDataToMarkSongAsComplete(song));
         const request = {
-            data: [{ range, majorDimension: "COLUMNS", values: [ values ] }],
+            data: data.filter((data) => data != null),
             valueInputOption: "RAW"
         };
 
@@ -113,6 +94,15 @@ class GoogleSheetSongSource extends ISongSource {
             spreadsheetId: this.sheetId,
             requestBody: request
         });
+    };
+
+    getDataToMarkSongAsComplete = (song) => {
+        const DATE_PROCESSED_COLUMN = "D";
+        const rowNumber = this.youtubeIdToRowNumber[song.youtubeVideoId];
+        return rowNumber == null ? null : {
+            range: `${DATE_PROCESSED_COLUMN}${rowNumber}`,
+            values: [ [ new Date() ] ]
+        };
     };
 }
 

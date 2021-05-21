@@ -1,5 +1,7 @@
 {
   "outputDirectory": "/Users/origold/Desktop",
   "songSource": "googlesheets",
-  "downloader": "yt2mp3"
+  "downloader": "yt2mp3",
+  "reviewMode": "confirm",
+  "enableSongSkip": true
 }
