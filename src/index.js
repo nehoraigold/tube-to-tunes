@@ -5,7 +5,7 @@ const { textSync } = require("figlet");
 const logger = require("./utils/logging");
 const DownloaderFactory = require("./downloader/DownloaderFactory");
 const SongSourceFactory = require("./songsource/SongSourceFactory");
-const PromptSongReviewer = require("./song_reviewer/PromptSongReviewer");
+const SongReviewerFactory = require("./song_reviewer/SongReviewerFactory");
 const config = require("../config.json");
 //endregion
 
@@ -37,24 +37,24 @@ async function main() {
 async function initializeApp() {
     global.spinner = ora("Initializing... 🤔").start();
     const songSource = SongSourceFactory.Create(config);
+    const reviewer = SongReviewerFactory.Create(config);
     const downloader = DownloaderFactory.Create(config);
-    const reviewer = new PromptSongReviewer(config);
 
     if (!songSource || !(await songSource.Initialize())) {
         global.spinner.fail("Failed to initialize song loader! 😞");
-        return null;
-    }
-    if (!downloader || !(await downloader.Initialize())) {
-        global.spinner.fail("Failed to initialize downloader! 😞");
         return null;
     }
     if (!reviewer) {
         global.spinner.fail("Failed to initialize reviewer! 😞");
         return null;
     }
+    if (!downloader || !(await downloader.Initialize())) {
+        global.spinner.fail("Failed to initialize downloader! 😞");
+        return null;
+    }
 
     global.spinner.succeed("Initialized successfully! 😄");
-    return { songSource, downloader, reviewer };
+    return { songSource, reviewer, downloader };
 }
 
 async function retrieveSongs(songSource) {

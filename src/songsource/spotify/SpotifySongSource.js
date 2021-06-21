@@ -74,7 +74,8 @@ class SpotifySongSource extends ISongSource {
             SpotifyTrackField.TRACK_NUMBER,
             SpotifyTrackField.ALBUM_TOTAL_TRACKS,
             SpotifyTrackField.ALBUM_RELEASE_DATE,
-            SpotifyTrackField.SONG_LENGTH
+            SpotifyTrackField.SONG_LENGTH,
+            SpotifyTrackField.ALBUM_ARTWORK
         );
         const { body: { items } } = await this.api.getPlaylistTracks(playlistId, { fields });
         return items;
@@ -83,18 +84,20 @@ class SpotifySongSource extends ISongSource {
     convertTracksToSongs = async (tracks) => {
         const songs = [];
         for (const { track } of tracks) {
-            const { name, artist, album, trackNumber, albumTotalTracks, durationMs, dateReleased } = extractFieldsFromTrack(track);
+            const { name, artist, album, trackNumber, albumTotalTracks, durationMs, dateReleased, albumArtworkUrl } =
+                extractFieldsFromTrack(track);
             const videoId = await this.getVideoId({ name, artist, album });
             const durationSeconds = Math.ceil(durationMs / MILLISECONDS_IN_SECOND);
             const yearReleased = getYearFromDate(dateReleased);
-            songs.push(new Song(name, artist, videoId, album, `${trackNumber}/${albumTotalTracks}`, yearReleased, durationSeconds));
+            const song = new Song(name, artist, videoId, album, `${trackNumber}/${albumTotalTracks}`, yearReleased, durationSeconds, albumArtworkUrl);
+            songs.push(song);
         }
         return songs;
     };
 
     getVideoId = async (track) => {
         return await this.searcher.Search(track);
-    }
+    };
 }
 
 module.exports = SpotifySongSource;

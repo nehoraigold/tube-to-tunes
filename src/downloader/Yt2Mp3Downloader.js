@@ -1,8 +1,13 @@
 //region imports
+const axios = require("axios");
+const path = require("path");
 const { path: ffmpegPath } = require("@ffmpeg-installer/ffmpeg");
+const fs = require("fs");
 const YoutubeToMp3 = require("youtube-mp3-downloader");
 const IDownloader = require("./IDownloader");
 const CliProgressBar = require("../progress_bar/CliProgressBar");
+const { TEMP_ALBUM_ARTWORK_PATH } = require("../utils/constants");
+const { createDirIfNeeded, removeDirIfNeeded } = require("../utils/utils");
 //endregion
 
 class Yt2Mp3Downloader extends IDownloader {
@@ -33,17 +38,22 @@ class Yt2Mp3Downloader extends IDownloader {
         return true;
     };
 
-    Download = (song) => {
+    Download = async (song) => {
         const filename = `${song.name} - ${song.artist}.mp3`;
         this.progressBar.AddBar(song.youtubeVideoId, filename);
-        this.onFinished[song.youtubeVideoId] = async (filename) => {
-            await this.metadataWriter.WriteMetadata(filename, song);
-        };
+        const artworkFilepath = await this.downloadAlbumArtwork(song);
+        this.onFinished[song.youtubeVideoId] = this.getOnFinishedCallback(filename, song, artworkFilepath);
         this.YD.download(song.youtubeVideoId, filename);
     };
 
     SetCompletionCallback = (completionCallback) => {
         this.completionCallback = completionCallback;
+    };
+
+    getOnFinishedCallback = (filename, song, artworkFilepath) => {
+        return async (filename) => {
+            await this.metadataWriter.WriteMetadata(filename, song, artworkFilepath);
+        };
     };
 
     progress = (event) => {
@@ -68,8 +78,27 @@ class Yt2Mp3Downloader extends IDownloader {
         this.progressBar.Stop();
         if (this.completionCallback) {
             await this.completionCallback();
+            const WAIT_TIME_FOR_ALBUM_ARTWORK_MS = 1000;
+            setTimeout(() => removeDirIfNeeded(TEMP_ALBUM_ARTWORK_PATH), WAIT_TIME_FOR_ALBUM_ARTWORK_MS);
         }
     };
+
+    downloadAlbumArtwork = async (song) => {
+        if (!song.albumArtworkUrl) {
+            return null;
+        }
+        try {
+            createDirIfNeeded(TEMP_ALBUM_ARTWORK_PATH);
+            const filePath = path.join(TEMP_ALBUM_ARTWORK_PATH, `${song.name}.jpg`);
+            const response = await axios.get(song.albumArtworkUrl, { responseType: "stream" });
+            const writeStream = fs.createWriteStream(filePath);
+            await response.data.pipe(writeStream);
+            return filePath;
+        } catch (e) {
+            global.logger.err(e);
+            return null;
+        }
+    }
 }
 
 module.exports = Yt2Mp3Downloader;

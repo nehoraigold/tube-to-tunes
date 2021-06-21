@@ -72,9 +72,9 @@ class GoogleSheetSongSource extends ISongSource {
             return new Song(title, artist, youtubeId);
         }
 
-        const { album, trackNumber, yearReleased, albumTotalTracks } = songInfo;
+        const { album, trackNumber, yearReleased, albumTotalTracks, albumArtworkUrl } = songInfo;
         const trackInfo = `${trackNumber}/${albumTotalTracks}`;
-        return new Song(title, artist, youtubeId, album, trackInfo, yearReleased);
+        return new Song(title, artist, youtubeId, album, trackInfo, yearReleased, null, albumArtworkUrl);
     };
 
     GetSongs = () => {

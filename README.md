@@ -62,4 +62,3 @@ any unwanted songs. When enabled, this feature requires user input.
 
 # Ideas For Future Improvement
 - Debug mode
-- Fill in album artwork automatically

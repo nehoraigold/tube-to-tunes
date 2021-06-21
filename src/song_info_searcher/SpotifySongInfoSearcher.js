@@ -20,11 +20,13 @@ class SpotifySongInfoSearcher extends ISongInfoSearcher {
     FindSongInfo = async (searchString) => {
         const fields = parseSpotifyTrackFields(
             SpotifyTrackField.TITLE,
-            SpotifyTrackField.ARTIST,
             SpotifyTrackField.ALBUM,
-            SpotifyTrackField.TRACK_NUMBER,
+            SpotifyTrackField.ARTIST,
             SpotifyTrackField.ALBUM_TOTAL_TRACKS,
-            SpotifyTrackField.ALBUM_RELEASE_DATE
+            SpotifyTrackField.ALBUM_RELEASE_DATE,
+            SpotifyTrackField.TRACK_NUMBER,
+            SpotifyTrackField.SONG_LENGTH,
+            SpotifyTrackField.ALBUM_ARTWORK
         );
         const { body: { tracks: { items } } } = await this.spotify.searchTracks(searchString, { fields });
         if (items.length === 0) {
