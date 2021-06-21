@@ -41,10 +41,10 @@ information and modify the song information prior to starting the download.
 
 | __Review Mode__ | __Behavior__ |
 | :---------      | :------      |
-| `off`         | Only song title and artist will be shown. Song data cannot be modified prior to download. |
-| `display`     | All song data will be shown. Song data cannot be modified prior to download. |
-| `confirm`     | All song data will be shown and confirmation requested. If desired, song data can be modified prior to download. Requires user input. |
-| `edit`        | All song data will immediately be editable prior to download. Requires user input. |
+| `off`           | Only song title and artist will be shown. Song data cannot be modified prior to download. |
+| `display`       | All song data will be shown. Song data cannot be modified prior to download. |
+| `confirm`       | All song data will be shown and confirmation requested. If desired, song data can be modified prior to download. Requires user input. |
+| `edit`          | All song data will immediately be editable prior to download. Requires user input. |
 
 ### Enable Song Skip
 Sometimes, you may not want to download all songs loaded from a particular

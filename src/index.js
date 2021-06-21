@@ -1,6 +1,7 @@
 //region imports
 const ora = require("ora");
 const chalk = require("chalk");
+const clear = require("clear");
 const { textSync } = require("figlet");
 const logger = require("./utils/logging");
 const DownloaderFactory = require("./downloader/DownloaderFactory");
@@ -13,6 +14,7 @@ global.spinner = null;
 global.logger = logger;
 
 async function main() {
+    clear();
     console.log(chalk.green(textSync("Tube 2 Tunes")));
     establishShutdownProcedure();
 
