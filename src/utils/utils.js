@@ -1,5 +1,5 @@
 //region imports
-const { readFileSync, existsSync } = require("fs");
+const { readFileSync, existsSync, rmdirSync, mkdirSync } = require("fs");
 const { join, dirname } = require("path");
 const { CONFIGS_DIRECTORY } = require("./constants");
 //endregion
@@ -33,7 +33,11 @@ const getYoutubeVideoIdFromUrl = (url) => {
 };
 
 const getAbsolutePath = (pathFromRoot) => {
-    return join(dirname(require.main.filename), "..", pathFromRoot);
+    if (pathFromRoot.charAt(0) === "/") {
+        return pathFromRoot;
+    } else {
+        return join(dirname(require.main.filename), "..", pathFromRoot);
+    }
 };
 
 const getJsonFromFile = (filepath) => {
@@ -62,6 +66,18 @@ const splitCamelCase = (string) => {
     return string.replace(/([a-z])([A-Z])/g, "$1 $2");
 };
 
+const createDirIfNeeded = (path) => {
+    if (!existsSync(path)) {
+        mkdirSync(path, { recursive: true });
+    }
+};
+
+const removeDirIfNeeded = (path) => {
+    if (existsSync(path)) {
+        rmdirSync(path, { recursive: true });
+    }
+};
+
 module.exports = {
     getQueryParamsString,
     stringToMap,
@@ -71,5 +87,7 @@ module.exports = {
     getConfig,
     getYearFromDate,
     capitalize,
-    splitCamelCase
+    splitCamelCase,
+    createDirIfNeeded,
+    removeDirIfNeeded
 };
