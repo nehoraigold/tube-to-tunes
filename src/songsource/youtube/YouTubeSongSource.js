@@ -99,9 +99,9 @@ class YouTubeSongSource extends ISongSource {
             let song = new Song(snippet.title, null, snippet.resourceId.videoId);
             const songInfo = await this.songInfoSearcher.FindSongInfo(song.name);
             if (songInfo) {
-                const { name, artist, album, trackNumber, albumTotalTracks, yearReleased } = songInfo;
+                const { name, artist, album, trackNumber, albumTotalTracks, yearReleased, albumArtworkUrl } = songInfo;
                 const track = `${trackNumber}/${albumTotalTracks}`;
-                song = new Song(name, artist, song.youtubeVideoId, album, track, yearReleased);
+                song = new Song(name, artist, song.youtubeVideoId, album, track, yearReleased, null, albumArtworkUrl);
             } else if (!this.forceDownloadVideos) {
                 global.logger.err(`Could not retrieve song info for video with ID ${song.youtubeVideoId}: ${song.name}`);
                 continue;
