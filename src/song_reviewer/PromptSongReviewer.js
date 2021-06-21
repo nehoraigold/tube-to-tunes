@@ -22,8 +22,9 @@ class PromptSongReviewer extends ISongReviewer {
         case ReviewMode.EDIT:
             return this.editSong;
         case ReviewMode.OFF:
-        default:
             return null;
+        default:
+            throw `Unknown review mode "${reviewMode}"! Expecting one of the following: ${Object.values(ReviewMode).map((mode) => `"${mode}"`).join(", ")}`;
         }
     };
 
