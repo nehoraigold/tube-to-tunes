@@ -7,7 +7,8 @@ const { CONFIGS_DIRECTORY } = require("./constants");
 const getQueryParamsString = (url) => {
     const QUERY_PARAMS_INDEX = 1;
     const QUERY_PARAMS_DELIMITER = "?";
-    return url.split(QUERY_PARAMS_DELIMITER)[QUERY_PARAMS_INDEX];
+    const params = url.split(QUERY_PARAMS_DELIMITER)[QUERY_PARAMS_INDEX];
+    return params ? params : "";
 };
 
 const stringToMap = (string, pairDelimiter, keyValueDelimiter) => {
@@ -17,6 +18,9 @@ const stringToMap = (string, pairDelimiter, keyValueDelimiter) => {
     const map = {};
     const keyValuePairs = string.split(pairDelimiter);
     keyValuePairs.forEach((pair) => {
+        if (!pair) {
+            return;
+        }
         const keyVal = pair.split(keyValueDelimiter);
         map[keyVal[KEY_INDEX]] = keyVal[VALUE_INDEX];
     });
