@@ -57,12 +57,19 @@ const getConfig = (configType) => {
 };
 
 const getYearFromDate = (yyyy_mm_dd) => {
+    const expectedFormat = /^\d{4}.\d{2}.\d{2}$/;
+    if (!yyyy_mm_dd || !expectedFormat.test(yyyy_mm_dd)) {
+        return "";
+    }
     const BEGINNING_INDEX = 0;
     const ENDING_INDEX = 4;
     return yyyy_mm_dd.substring(BEGINNING_INDEX, ENDING_INDEX);
 };
 
 const capitalize = (string) => {
+    if (!string) {
+        return "";
+    }
     return string[0].toUpperCase() + string.slice(1);
 };
 
