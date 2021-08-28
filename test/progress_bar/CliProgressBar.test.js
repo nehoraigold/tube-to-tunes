@@ -1,4 +1,4 @@
-const { describe, it, afterEach, beforeEach } = require("mocha");
+const { describe, it, afterEach } = require("mocha");
 const { expect } = require("chai");
 
 const CliProgressBar = require("../../src/progress_bar/CliProgressBar");

@@ -21,7 +21,8 @@ class CliProgressBar extends IProgressBar {
         const STARTING_VALUE = 0;
         const TOTAL_VALUE = 100;
         this.totalDownloads++;
-        this.currentDownloadBars[id] = this.bar.create(TOTAL_VALUE, STARTING_VALUE, { displayText });
+        const newBar = this.bar.create(TOTAL_VALUE, STARTING_VALUE, { displayText });
+        this.currentDownloadBars[id] = newBar ? newBar : this.createNonTtyBar();
     }
 
     UpdateBar(id, percentage) {
@@ -49,6 +50,15 @@ class CliProgressBar extends IProgressBar {
         this.FinishBar = this.FinishBar.bind(this);
         this.AllDone = this.AllDone.bind(this);
         this.Stop = this.Stop.bind(this);
+    }
+
+    createNonTtyBar() {
+        return {
+            percentage: 0,
+            update(percentage) {
+                this.percentage = percentage;
+            }
+        };
     }
 }
 
