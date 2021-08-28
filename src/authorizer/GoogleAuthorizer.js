@@ -28,11 +28,11 @@ class GoogleAuthorizer extends IAuthorizer {
         const { client_id, client_secret, redirect_uris } = credentials.installed;
         const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
 
-        if (!existsSync(this.tokenPath)) {
-            return await this.successfullyCreatedNewToken(oAuth2Client);
+        const token = await this.retrieveToken(oAuth2Client);
+        if (!token) {
+            return false;
         }
 
-        const token = getJsonFromFile(this.tokenPath);
         oAuth2Client.setCredentials(token);
         this.auth = oAuth2Client;
         return true;
@@ -47,17 +47,17 @@ class GoogleAuthorizer extends IAuthorizer {
         }
     };
 
-    successfullyCreatedNewToken = async (oAuth2Client) => {
-        const token = await this.createNewToken(oAuth2Client);
-        if (!token) {
-            return false;
+    retrieveToken = async (oAuth2Client) => {
+        let token;
+        if (!existsSync(this.tokenPath)) {
+            token = await this.createNewToken(oAuth2Client);
+            if (!token || !this.storeToken(token)) {
+                return null;
+            }
+        } else {
+            token = getJsonFromFile(this.tokenPath);
         }
-        if (!this.storeToken(token)) {
-            return false;
-        }
-        oAuth2Client.setCredentials(token);
-        this.auth = oAuth2Client;
-        return true;
+        return token;
     };
 
     createNewToken = async (oAuth2Client) => {
