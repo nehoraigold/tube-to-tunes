@@ -14,29 +14,41 @@ class CliProgressBar extends IProgressBar {
             hideCursor: true,
             format: " {bar} || {percentage}% || {displayText}"
         }, cliProgress.Presets.shades_grey);
+        this.bindFunctions();
     }
 
-    AddBar = (id, displayText) => {
+    AddBar(id, displayText) {
         const STARTING_VALUE = 0;
         const TOTAL_VALUE = 100;
         this.totalDownloads++;
         this.currentDownloadBars[id] = this.bar.create(TOTAL_VALUE, STARTING_VALUE, { displayText });
-    };
+    }
 
-    UpdateBar = (id, percentage) => {
+    UpdateBar(id, percentage) {
+        if (!this.currentDownloadBars[id]) {
+            throw new Error(`No progress bar with id ${id}!`);
+        }
         this.currentDownloadBars[id].update(percentage);
-    };
+    }
 
-    FinishBar = () => {
+    FinishBar() {
         this.finishCount++;
-    };
+    }
 
-    AllDone = () => {
+    AllDone() {
         return this.totalDownloads === this.finishCount;
-    };
+    }
 
-    Stop = () => {
+    Stop() {
         this.bar.stop();
+    }
+
+    bindFunctions() {
+        this.AddBar = this.AddBar.bind(this);
+        this.UpdateBar = this.UpdateBar.bind(this);
+        this.FinishBar = this.FinishBar.bind(this);
+        this.AllDone = this.AllDone.bind(this);
+        this.Stop = this.Stop.bind(this);
     }
 }
 
